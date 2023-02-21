@@ -15,6 +15,7 @@ class Event extends Model
         'user_id',
         'length',
         'reccurence',
-        'movable'
+        'movable',
+        'start_date'
     ];
 }

@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('tasks', TaskController::class) -> middleware('auth:sanctum');
 
 Route::get('events/trigger', [EventController::class, 'algorithm']) -> middleware('auth:sanctum');
+Route::get('events/setup', [EventController::class, 'reccurent_setup']) -> middleware('auth:sanctum');
 Route::apiResource('events', EventController::class) -> middleware('auth:sanctum');
 
 Route::post('auth/register', [AuthController::class, 'createUser']);
