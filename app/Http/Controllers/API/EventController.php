@@ -29,6 +29,7 @@ class EventController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+
     public function algorithm(Request $request)
     {
         $i_events = DB::table('events')
@@ -50,37 +51,61 @@ class EventController extends Controller
         $available_periods = [];
 
         $free_time = [
-            "start" => Carbon::create(2023, 02, 22, 10, 0, 0, NULL),
-            "end" => Carbon::create(2023, 02, 22, 18, 0, 0, NULL),
+            #"start" => Carbon::create(2023, 02, 22, 10, 0, 0, NULL),
+            "start" => Carbon::now(),
+            "length" => Carbon::now()->diffInMinutes($i_events[0]->start_date)
         ];
-
         array_push($available_periods, $free_time);
+
+        for ($i=0; $i < sizeof($i_events)-1; $i++){
+
+            $iev_start_date = clone new Carbon($i_events[$i]->start_date);
+            $iev_end_date = clone $iev_start_date->addMinutes($i_events[$i]->length);
+
+            $niev_start_date = clone new Carbon($i_events[$i+1]->start_date);
+
+            array_push($available_periods, ["start" => clone $iev_end_date,"length" => $iev_end_date->diffInMinutes($niev_start_date)]);
+        }
+
+        usort($available_periods, function($a, $b) {return $a['length'] - $b['length'];});
+
+        $available_copy = $available_periods;
 
         $processed = [];
         $failed = [];
 
-        $count = 6;
-        $i = 0;
-        while($i<$count){
+        for ($i=0; $i < sizeof($m_events); $i++){
             $event = $m_events[$i];
-            $i = $i + 1;
+            $fail = true;
 
             foreach($available_periods as &$period){
-                if($event->length < $period["start"]->diffInMinutes($period["end"])){
+                if($event->length < $period["length"]){
                     $event->start_date = clone $period["start"];
                     $period["start"]->addMinutes($event->length);
-                    $event->end_date = clone $period["start"];
+                    $period["length"] = $period["length"] - $event->length;
+                    $event->end_date = NULL; #Useless/redundant
 
-                    if($period["start"]->diffInMinutes($period["end"]) < $minimum){
-                        #WAIT HOW DO I REMOVE PERIOD IF TOO SMALL IF IM IN PERIOD
-                        #DOES PHP ALLOW ?
-                    }
+                    usort($available_periods, function($a, $b) {return $a['length'] - $b['length'];});
+                    #Thats somewhat of a problem actually, it will hava a tendency to put things in the smallest space, even if it is smaller
 
                     array_push($processed, $event);
+                    $fail = false;
+
                     break;
                 }
+            }
+
+            if($fail == true){ #If no place was found, well, let's put in in a box and alert the user later
                 array_push($failed, $event);
             }
+
+        }
+
+        foreach ($processed as $event) {
+            $temp_event = Event::find($event->id);
+            $temp_event->start_date = $event->start_date;
+            $temp_event->end_date = $event->end_date;
+            $temp_event->save();
         }
 
         return response()->json([
@@ -91,8 +116,15 @@ class EventController extends Controller
             'processed' => $processed,
             'failed' => $failed,
             'minimum' => $minimum,
-            'free_time' => $free_time
+            'original_available' => $available_copy,
+            'final_available' => $available_periods,
+            'debug' => "yo"
         ], 200);
+    }
+
+    public function reccurent_setup()
+    {
+        Flight::where('active', 0)->delete(); //CLEANING PREVIOUS SETUP
     }
 
     /**
