@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\EventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 #Route::get('tasks', [TaskController::class], 'indexUser') -> middleware('auth:sanctum');
 Route::apiResource('tasks', TaskController::class) -> middleware('auth:sanctum');
 
-Route::delete('truc', function (Request $request) {
-    return ['message' => "authenticated"];
-});
+Route::get('events/trigger', [EventController::class, 'algorithm']) -> middleware('auth:sanctum');
+Route::apiResource('events', EventController::class) -> middleware('auth:sanctum');
 
 Route::post('auth/register', [AuthController::class, 'createUser']);
 Route::post('auth/login', [AuthController::class, 'loginUser']);
