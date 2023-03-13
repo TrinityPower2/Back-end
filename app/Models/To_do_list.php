@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Task extends Model
+class To_do_list extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_task';
+    protected $primaryKey = 'id_todo';
 
     public $timestamps = false;
 }

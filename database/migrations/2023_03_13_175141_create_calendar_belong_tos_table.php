@@ -11,15 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('events', function (Blueprint $table) {
-            $table->id('id_event');
-            $table->string('name_event');
-            $table->longText('description');
-            $table->dateTime('start_date')->nullable();
-            $table->integer('length');
-            $table->boolean('movable');
-            $table->integer('priority_level');
+        Schema::create('calendar_belong_tos', function (Blueprint $table) {
+            $table->foreignId('id_users')->references('id')->on('Users');
             $table->foreignId('id_calendar')->references('id_calendar')->on('Calendars');
+            $table->primary(['id_users', 'id_calendar']);
         });
     }
 
@@ -28,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('events');
+        Schema::dropIfExists('calendar_belong_tos');
     }
 };

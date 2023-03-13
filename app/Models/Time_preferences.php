@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Task extends Model
+class Time_preferences extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_task';
+    protected $primaryKey = 'id_timepref';
 
     public $timestamps = false;
 }

@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
-            $table->id('id_task');
-            $table->string('name_task');
-            $table->date('date_day');
-            $table->string('description', 200);
-            $table->foreignId('id_todo')->references('id_todo')->on('to_do_lists');
+        Schema::create('calendars', function (Blueprint $table) {
+            $table->id('id_calendar');
+            $table->string('name_calendar');
+            $table->boolean('to_notify');
         });
     }
 
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('calendars');
     }
 };

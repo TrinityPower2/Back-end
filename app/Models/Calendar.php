@@ -5,21 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Event extends Model
+class Calendar extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id_event';
+    protected $primaryKey = 'id_calendar';
 
     public $timestamps = false;
 
     protected $fillable = [
-        'title',
-        'description',
-        'user_id',
-        'length',
-        'reccurence',
-        'movable',
-        'start_date'
+        'name_calendar',
+        'to_notify'
     ];
 }
