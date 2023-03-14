@@ -34,3 +34,7 @@ Route::apiResource('events', EventController::class) -> middleware('auth:sanctum
 Route::post('auth/register', [AuthController::class, 'createUser']);
 Route::post('auth/login', [AuthController::class, 'loginUser']);
 Route::get('auth/logout', [AuthController::class, 'logoutUser']);
+
+Route::get('ping', function () {
+    return response()->json(['pong' => true]);
+});
