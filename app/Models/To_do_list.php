@@ -12,4 +12,9 @@ class To_do_list extends Model
     protected $primaryKey = 'id_todo';
 
     public $timestamps = false;
+
+    protected $fillable = [
+        'name_todo',
+        'id_users'
+    ];
 }

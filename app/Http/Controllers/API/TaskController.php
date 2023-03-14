@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Task;
+use App\Models\To_do_list;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use Illuminate\Http\Request;
@@ -43,6 +44,33 @@ class TaskController extends Controller
     public function create()
     {
         //
+    }
+
+    public function userCreate(Request $request)
+    {
+        
+        $verification = To_do_list::where('id_todo', $request->id_todo)::where('id_users', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this list!",
+            ], 401);
+        } 
+        
+        
+        $event = Task::create(
+            [
+                'name_task'=>$request->name_task,
+                'date_day'=>$request->date_day,
+                'description'=>$request->description,
+                'id_todo'=>$request->id_todo,
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist Created successfully!",
+            'list' => $event
+        ], 200);
     }
 
     /**

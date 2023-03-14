@@ -26,6 +26,21 @@ class ToDoListController extends Controller
         //
     }
 
+    public function userCreate(Request $request)
+    {
+        $event = To_do_list::create(
+            [
+                'name_todo'=>$request->name_todo,
+                'id_users'=>auth('sanctum')->user()->id
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist Created successfully!",
+            'list' => $event
+        ], 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

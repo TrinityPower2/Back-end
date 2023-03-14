@@ -3,6 +3,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\CalendarController;
+use App\Http\Controllers\Api\ToDoListController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('tasks', TaskController::class) -> middleware('auth:sanctum');
 
 Route::post('calendar/create', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
+
+Route::post('todolist/create', [ToDoListController::class, 'userCreate']) -> middleware('auth:sanctum');
 
 Route::get('events/trigger', [EventController::class, 'algorithm']) -> middleware('auth:sanctum');
 Route::get('events/setup', [EventController::class, 'reccurent_setup']) -> middleware('auth:sanctum');
