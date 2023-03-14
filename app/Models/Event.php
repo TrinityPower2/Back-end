@@ -14,12 +14,12 @@ class Event extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'title',
+        'name_event',
         'description',
-        'user_id',
+        'start_date',
         'length',
-        'reccurence',
         'movable',
-        'start_date'
+        'priority_level',
+        'id_calendar'
     ];
 }

@@ -7,6 +7,9 @@ use App\Models\To_do_list;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+use Carbon\Carbon;
 
 class TaskController extends Controller
 {
@@ -49,7 +52,7 @@ class TaskController extends Controller
     public function userCreate(Request $request)
     {
         
-        $verification = To_do_list::where('id_todo', $request->id_todo)::where('id_users', auth('sanctum')->user()->id)->first();
+        $verification = DB::table('to_do_lists')->where('id_todo', '=', $request->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification == null){
             return response()->json([
                 'status' => false,
@@ -61,14 +64,14 @@ class TaskController extends Controller
         $event = Task::create(
             [
                 'name_task'=>$request->name_task,
-                'date_day'=>$request->date_day,
+                'date_day'=> new Carbon($request->date_day),
                 'description'=>$request->description,
                 'id_todo'=>$request->id_todo,
             ]);
 
         return response()->json([
             'status' => true,
-            'message' => "Todolist Created successfully!",
+            'message' => "Task Created successfully!",
             'list' => $event
         ], 200);
     }

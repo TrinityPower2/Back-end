@@ -26,6 +26,38 @@ class EventController extends Controller
         ]);
     }
 
+
+
+    public function userCreate(Request $request)
+    {
+        
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $request->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this calendar!",
+            ], 401);
+        } 
+        
+        
+        $event = Event::create(
+            [
+                'name_event' => $request->name_event,
+                'description' => $request->description,
+                'start_date' => new Carbon($request->start_date),
+                'length' => $request->length,
+                'movable' => true,
+                'priority_level' => 0,
+                'id_calendar' => $request->id_calendar,
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => "Event Created successfully!",
+            'list' => $event
+        ], 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
