@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
+use Carbon\Carbon;
+
 class TimePreferencesController extends Controller
 {
     /**
@@ -16,6 +18,38 @@ class TimePreferencesController extends Controller
     public function index(): Response
     {
         //
+    }
+
+    public function userCreate(Request $request)
+    {   
+        $verification = DB::table('time_preferences')->where('name_timepref', '=', $request->name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This time preference is already created !",
+            ], 401);
+        }
+
+        if(!in_array($request->name_timepref,["start_day","end_day","start_weekend","end_weekend"])){
+            return response()->json([
+                'status' => false,
+                'message' => "This time preference is not valid !",
+            ], 401);
+        }
+        
+        $event = Time_preferences::create(
+            [
+                'name_timepref' => $request->name_timepref,
+                'start_time' => $request->start_time,
+                'length' => new Carbon($request->length),
+                'id_users' => auth('sanctum')->user()->id
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => "Preference Created successfully!",
+            'list' => $event
+        ], 200);
     }
 
     /**
