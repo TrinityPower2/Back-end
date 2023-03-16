@@ -49,10 +49,8 @@ Route::get('todolist/fetchall', [ToDoListController::class, 'userFetchAll']) -> 
 
 Route::post('timepref/create', [TimePreferencesController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('timepref/fetch', [TimePreferencesController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::post('timepref/edit', [TimePreferencesController::class, 'userEdit']) -> middleware('auth:sanctum');
 
-#Route::get('events/trigger', [EventController::class, 'algorithm']) -> middleware('auth:sanctum');
-#Route::get('events/setup', [EventController::class, 'reccurent_setup']) -> middleware('auth:sanctum');
-#Route::apiResource('events', EventController::class) -> middleware('auth:sanctum');
 
 Route::post('auth/register', [AuthController::class, 'createUser']);
 Route::post('auth/login', [AuthController::class, 'loginUser']);
