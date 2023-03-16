@@ -12,4 +12,11 @@ class Time_preferences extends Model
     protected $primaryKey = 'id_timepref';
 
     public $timestamps = false;
+
+    protected $fillable = [
+        'name_timepref',
+        'start_time',
+        'length',
+        'id_users'
+    ];
 }

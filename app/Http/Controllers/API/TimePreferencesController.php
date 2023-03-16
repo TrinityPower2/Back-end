@@ -7,6 +7,7 @@ use App\Models\Time_preferences;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
 
@@ -22,26 +23,26 @@ class TimePreferencesController extends Controller
 
     public function userCreate(Request $request)
     {   
-        $verification = DB::table('time_preferences')->where('name_timepref', '=', $request->name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This time preference is already created !",
-            ], 401);
-        }
-
-        if(!in_array($request->name_timepref,["start_day","end_day","start_weekend","end_weekend"])){
+        if(!in_array($request->name_timepref,["sleep","breakfast","lunch","dinner"])){
             return response()->json([
                 'status' => false,
                 'message' => "This time preference is not valid !",
             ], 401);
         }
         
+        $verification = DB::table('time_preferences')->where('name_timepref', '=', $request->name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification != null){
+            return response()->json([
+                'status' => false,
+                'message' => "This time preference is already created !",
+            ], 401);
+        }
+        
         $event = Time_preferences::create(
             [
                 'name_timepref' => $request->name_timepref,
-                'start_time' => $request->start_time,
-                'length' => new Carbon($request->length),
+                'start_time' => new Carbon($request->start_time),
+                'length' => $request->length,
                 'id_users' => auth('sanctum')->user()->id
             ]);
 
