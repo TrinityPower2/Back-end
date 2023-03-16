@@ -61,4 +61,21 @@ class ToDoListController extends Controller
         ], 200);
     }
 
+    /**
+     * Fetch all tasks of every todolist belonging to the user
+     */
+    public function userFetchAll()
+    {
+        $calendars = DB::table('tasks')
+            ->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')
+            ->where('to_do_lists.id_users', auth('sanctum')->user()->id)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendars fetched successfully!",
+            'calendars' => $calendars
+        ], 200);
+    }
+
 }

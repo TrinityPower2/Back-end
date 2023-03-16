@@ -13,33 +13,23 @@ use Carbon\Carbon;
 
 class EventController extends Controller
 {
+
     /**
-     * Display a listing of the resource.
+     * Create a new event as a user
      */
-    public function index()
-    {
-        $events = Event::where('user_id', auth('sanctum')->user()->id)->get();
-
-        return response()->json([
-            'status' => true,
-            'events' => $events
-        ]);
-    }
-
-
 
     public function userCreate(Request $request)
     {
-        
+
         $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $request->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification == null){
             return response()->json([
                 'status' => false,
                 'message' => "You don't have access to this calendar!",
             ], 401);
-        } 
-        
-        
+        }
+
+
         $event = Event::create(
             [
                 'name_event' => $request->name_event,
@@ -59,9 +49,79 @@ class EventController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Edit an event as a user
      */
 
+    public function userEdit(Request $request)
+    {
+        $event = Event::where('id_event', $request->id_event)->first();
+        if($event == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This event does not exist !",
+            ], 404);
+        }
+
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this calendar.",
+            ], 401);
+        }
+
+        $event->name_event = $request->name_event;
+        $event->description = $request->description;
+        $event->start_date = new Carbon($request->start_date);
+        $event->length = $request->length;
+        $event->movable = $request->movable;
+        $event->priority_level = $request->priority_level;
+        $event->id_calendar = $request->id_calendar;
+
+        $event->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Event Edited successfully!",
+            'list' => $event
+        ], 200);
+    }
+
+    /**
+     * Delete an event as a user
+     */
+
+    public function userDelete(Request $request)
+    {
+        $event = Event::where('id_event', $request->id_event)->first();
+        if($event == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This event does not exist !",
+            ], 404);
+        }
+
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this calendar.",
+            ], 401);
+        }
+
+        $event->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Event Deleted successfully!",
+        ], 200);
+    }
+
+
+
+    # LEGACY ALGORITHM. TO BE REPLACED AND PUT IN ANOTHER CONTROLLER
+
+    /*
     public function algorithm(Request $request)
     {
         $i_events = DB::table('events')
@@ -241,58 +301,5 @@ class EventController extends Controller
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $event = Event::create(
-            ['title'=>$request->title,
-            'description'=>$request->description,
-            'user_id'=>auth('sanctum')->user()->id,
-            'length'=>$request->length,
-            'reccurence'=>$request->reccurence,
-            'movable'=>$request->movable,
-            'start_date'=>NULL,
-            'end_date'=>NULL
-            ]);
-
-        return response()->json([
-            'status' => true,
-            'message' => "Task Created successfully!",
-            'task' => $event
-        ], 200);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Event $event): Response
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Event $event): Response
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Event $event)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Event $event): RedirectResponse
-    {
-        //
-    }
+    */
 }

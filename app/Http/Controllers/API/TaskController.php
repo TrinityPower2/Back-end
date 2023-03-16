@@ -14,53 +14,21 @@ use Carbon\Carbon;
 class TaskController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * Create a new task as a user.
      */
-    /*
-    public function index()
-    {
-        $tasks = Task::all();
-
-        return response()->json([
-            'status' => true,
-            'tasks' => $tasks
-        ]);
-    }*/
-
-    public function index()
-    {
-        $tasks = Task::where('user_id', auth('sanctum')->user()->id)->get();
-
-        return response()->json([
-            'status' => true,
-            'tasks' => $tasks
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     public function userCreate(Request $request)
     {
-        
+
         $verification = DB::table('to_do_lists')->where('id_todo', '=', $request->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification == null){
             return response()->json([
                 'status' => false,
                 'message' => "You don't have access to this list!",
             ], 401);
-        } 
-        
-        
+        }
+
+
         $event = Task::create(
             [
                 'name_task'=>$request->name_task,
@@ -77,82 +45,63 @@ class TaskController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * Edit a task as a user.
      */
-    /*
-    public function store(StoreTaskRequest $request)
+
+    public function userEdit(Request $request)
     {
-        $task = Task::create($request->all());
+        $task = Task::where('id_task', $request->id_task)->first();
+        if ($task == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Task not found!",
+            ], 404);
+        }
+
+        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this list!",
+            ], 401);
+        }
+
+        $task->name_task = $request->name_task;
+        $task->date_day = new Carbon($request->date_day);
+        $task->description = $request->description;
+        $task->id_todo = $request->id_todo;
+
+        $task->save();
 
         return response()->json([
             'status' => true,
-            'message' => "Task Created successfully!",
-            'task' => $task
-        ], 200);
-    }*/
-
-    public function store(StoreTaskRequest $request)
-    {
-        $task = Task::create(['title'=>$request->title,'description'=>$request->description,'user_id'=>auth('sanctum')->user()->id]);
-
-        return response()->json([
-            'status' => true,
-            'message' => "Task Created successfully!",
-            'task' => $task
-        ], 200);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Task $task
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Task $task
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Task $task
-     * @return \Illuminate\Http\Response
-     */
-    public function update(StoreTaskRequest $request, Task $task)
-    {
-        $task->update($request->all());
-
-        return response()->json([
-            'status' => true,
-            'message' => "Task Updated successfully!",
-            'task' => $task
+            'message' => "Task Edited successfully!",
+            'list' => $event
         ], 200);
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Task $task
-     * @return \Illuminate\Http\Response
+     * Delete a task as a user.
      */
-    public function destroy(Task $task)
+
+    public function userDelete(Request $request)
     {
+        $task = Task::where('id_task', $request->id_task)->first();
+        if ($task == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Task not found!",
+            ], 404);
+        }
+
+        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this list!",
+            ], 401);
+        }
+
         $task->delete();
 
         return response()->json([
@@ -160,4 +109,6 @@ class TaskController extends Controller
             'message' => "Task Deleted successfully!",
         ], 200);
     }
+
+
 }

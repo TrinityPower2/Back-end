@@ -14,22 +14,17 @@ use Carbon\Carbon;
 class TimePreferencesController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Create a new preference as a user.
      */
-    public function index(): Response
-    {
-        //
-    }
-
     public function userCreate(Request $request)
-    {   
-        if(!in_array($request->name_timepref,["sleep","breakfast","lunch","dinner"])){
+    {
+        if(!in_array($request->name_timepref,["sleep","breakfast","lunch","dinner","autocal_setting"])){
             return response()->json([
                 'status' => false,
                 'message' => "This time preference is not valid !",
             ], 401);
         }
-        
+
         $verification = DB::table('time_preferences')->where('name_timepref', '=', $request->name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification != null){
             return response()->json([
@@ -37,7 +32,7 @@ class TimePreferencesController extends Controller
                 'message' => "This time preference is already created !",
             ], 401);
         }
-        
+
         $event = Time_preferences::create(
             [
                 'name_timepref' => $request->name_timepref,
@@ -54,50 +49,52 @@ class TimePreferencesController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Fetch all preferences of a user
      */
-    public function create(): Response
+    public function userFetch(Request $request)
     {
-        //
+        $list = DB::table('time_preferences')->where('id_users', '=', auth('sanctum')->user()->id)->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Preferences Fetched successfully!",
+            'list' => $list
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
-    {
-        //
-    }
 
     /**
-     * Display the specified resource.
+     * Edit a preference as a user.
      */
-    public function show(Time_preferences $time_preferences): Response
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Time_preferences $time_preferences): Response
+    public function userEdit(Request $request)
     {
-        //
-    }
+        $preference = Time_preferences::where('id_timepref', $request->id_timepref)->first();
+        if ($preference == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Preference not found!",
+            ], 404);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Time_preferences $time_preferences): RedirectResponse
-    {
-        //
-    }
+        $verification = DB::table('time_preferences')->where('name_timepref', '=', $request->name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification != null){
+            return response()->json([
+                'status' => false,
+                'message' => "This time preference is already created !",
+            ], 401);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Time_preferences $time_preferences): RedirectResponse
-    {
-        //
+        $preference->name_timepref = $request->name_timepref;
+        $preference->start_time = new Carbon($request->start_time);
+        $preference->length = $request->length;
+
+        $preference->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Preference Edited successfully!",
+            'list' => $preference
+        ], 200);
     }
 }

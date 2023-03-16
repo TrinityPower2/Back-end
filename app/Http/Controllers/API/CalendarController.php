@@ -71,9 +71,21 @@ class CalendarController extends Controller
     }
 
     /**
-     * Fetch all events of all calendars belonging to the user
+     * Fetch all events of every calendars belonging to the user
+     * ## May probably be improved somehow...
      */
     public function userFetchAll(Request $request)
     {
+        $calendars = DB::table('events')
+            ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
+            ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+            ->where('calendar_belong_tos.id_users', auth('sanctum')->user()->id)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendars fetched successfully!",
+            'calendars' => $calendars
+        ], 200);
     }
 }
