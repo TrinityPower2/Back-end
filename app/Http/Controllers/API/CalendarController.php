@@ -8,24 +8,13 @@ use App\Models\Calendar_belong_to;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class CalendarController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Create a new calendar as a user
      */
-    public function index(): Response
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        //
-    }
 
     public function userCreate(Request $request)
     {
@@ -49,43 +38,42 @@ class CalendarController extends Controller
         ], 200);
     }
 
+
     /**
-     * Store a newly created resource in storage.
+     * Fetch all events of a calendar belonging to the user
      */
-    public function store(Request $request): RedirectResponse
+    public function userFetch(Request $request)
     {
-        //
+        $calendar = Calendar::where('id_calendar', $request->id_calendar)->first();
+        if($calendar == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not exist !",
+            ], 401);
+        }
+
+        $index = Calendar_belong_to::where('id_calendar', $request->id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if($index == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not belong to you !",
+            ], 401);
+        }
+
+        $events = DB::table('events')->where('id_calendar', $request->id_calendar)->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendar fetched successfully!",
+            'calendar' => $calendar,
+            'events' => $events
+        ], 200);
     }
 
     /**
-     * Display the specified resource.
+     * Fetch all events of all calendars belonging to the user
      */
-    public function show(Calendar $calendar): Response
+    public function userFetchAll(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Calendar $calendar): Response
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Calendar $calendar): RedirectResponse
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Calendar $calendar): RedirectResponse
-    {
-        //
     }
 }

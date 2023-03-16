@@ -28,12 +28,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 #Route::apiResource('tasks', TaskController::class) -> middleware('auth:sanctum');
 
 Route::post('events/create', [EventController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::post('calendar/create', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::get('calendar/fetch', [CalendarController::class, 'userFetch']) -> middleware('auth:sanctum');
+
 
 Route::post('tasks/create', [TaskController::class, 'userCreate']) -> middleware('auth:sanctum');
-
-Route::post('calendar/create', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
-
 Route::post('todolist/create', [ToDoListController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::get('todolist/fetch', [ToDoListController::class, 'userFetch']) -> middleware('auth:sanctum');
 
 Route::post('timepref/create', [TimePreferencesController::class, 'userCreate']) -> middleware('auth:sanctum');
 
