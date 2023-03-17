@@ -42,9 +42,9 @@ class CalendarController extends Controller
     /**
      * Fetch all events of a calendar belonging to the user
      */
-    public function userFetch(Request $request)
+    public function userFetch(Request $request, $id_calendar)
     {
-        $calendar = Calendar::where('id_calendar', $request->id_calendar)->first();
+        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
         if($calendar == null){
             return response()->json([
                 'status' => false,
@@ -52,7 +52,7 @@ class CalendarController extends Controller
             ], 401);
         }
 
-        $index = Calendar_belong_to::where('id_calendar', $request->id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
         if($index == null){
             return response()->json([
                 'status' => false,
@@ -60,7 +60,7 @@ class CalendarController extends Controller
             ], 401);
         }
 
-        $events = DB::table('events')->where('id_calendar', $request->id_calendar)->get();
+        $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
 
         return response()->json([
             'status' => true,
@@ -88,4 +88,67 @@ class CalendarController extends Controller
             'calendars' => $calendars
         ], 200);
     }
+
+    /**
+     * Update a calendar as a user
+     */
+    public function userEdit(Request $request, $id_calendar)
+    {
+        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
+        if($calendar == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not exist !",
+            ], 404);
+        }
+
+        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if($index == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not belong to you !",
+            ], 401);
+        }
+
+        $calendar->name_calendar = $request->name_calendar;
+        $calendar->to_notify = $request->to_notify;
+        $calendar->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendar updated successfully!",
+            'calendar' => $calendar
+        ], 200);
+    }
+
+    /**
+     * Delete a calendar as a user
+     */
+    public function userDelete(Request $request, $id_calendar)
+    {
+        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
+        if($calendar == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not exist !",
+            ], 404);
+        }
+
+        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if($index == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not belong to you !",
+            ], 401);
+        }
+
+        $calendar->delete();
+        $index->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendar deleted successfully!",
+        ], 200);
+    }
+
 }

@@ -51,7 +51,7 @@ class TimePreferencesController extends Controller
     /**
      * Fetch all preferences of a user
      */
-    public function userFetch(Request $request)
+    public function userFetchAll(Request $request, $id_timepref)
     {
         $list = DB::table('time_preferences')->where('id_users', '=', auth('sanctum')->user()->id)->get();
 
@@ -69,7 +69,7 @@ class TimePreferencesController extends Controller
 
     public function userEdit(Request $request)
     {
-        $preference = Time_preferences::where('id_timepref', $request->id_timepref)->first();
+        $preference = Time_preferences::where('name_timepref', $request->name_timepref)->first();
         if ($preference == null) {
             return response()->json([
                 'status' => false,

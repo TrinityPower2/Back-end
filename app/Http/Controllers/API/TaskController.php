@@ -45,12 +45,55 @@ class TaskController extends Controller
     }
 
     /**
+     * Fetch a belonging to the user
+     */
+
+    public function userFetch(Request $request, $id_task)
+    {
+        $task = Task::where('id_task', $id_task)->first();
+        if ($task == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Task not found!",
+            ], 404);
+        }
+
+        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this list!",
+            ], 401);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Task fetched successfully!",
+            'list' => $task
+        ], 200);
+    }
+
+    /**
+     * Fetch all tasks  belonging to the user
+     */
+
+    public function userFetchAll(Request $request){
+        $tasks = DB::table('tasks')->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')->where('to_do_lists.id_users', '=', auth('sanctum')->user()->id)->get();
+        return response()->json([
+            'status' => true,
+            'message' => "Tasks fetched successfully!",
+            'list' => $tasks
+        ], 200);
+    }
+
+
+    /**
      * Edit a task as a user.
      */
 
-    public function userEdit(Request $request)
+    public function userEdit(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $request->id_task)->first();
+        $task = Task::where('id_task', $id_task)->first();
         if ($task == null) {
             return response()->json([
                 'status' => false,
@@ -84,9 +127,9 @@ class TaskController extends Controller
      * Delete a task as a user.
      */
 
-    public function userDelete(Request $request)
+    public function userDelete(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $request->id_task)->first();
+        $task = Task::where('id_task', $id_task)->first();
         if ($task == null) {
             return response()->json([
                 'status' => false,

@@ -34,9 +34,9 @@ class ToDoListController extends Controller
      * Fetch all task from a todolist belonging to the user
      */
 
-    public function userFetch(Request $request)
+    public function userFetch(Request $request, $id_todo)
     {
-        $list = To_do_list::where('id_todo', $request->id_todo)->first();
+        $list = To_do_list::where('id_todo', $id_todo)->first();
         if($list == null){
             return response()->json([
                 'status' => false,
@@ -51,7 +51,7 @@ class ToDoListController extends Controller
             ], 401);
         }
 
-        $tasks = DB::table('tasks')->where('id_todo', $request->id_todo)->get();
+        $tasks = DB::table('tasks')->where('id_todo', $id_todo)->first();
 
         return response()->json([
             'status' => true,
@@ -75,6 +75,66 @@ class ToDoListController extends Controller
             'status' => true,
             'message' => "Calendars fetched successfully!",
             'calendars' => $calendars
+        ], 200);
+    }
+
+    /**
+     * Update a todolist belonging to the user
+     */
+
+    public function userEdit(Request $request, $id_todo)
+    {
+        $list = To_do_list::where('id_todo', $id_todo)->first();
+        if($list == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This todolist does not exist !",
+            ], 401);
+        }
+
+        if($list->id_users != auth('sanctum')->user()->id){
+            return response()->json([
+                'status' => false,
+                'message' => "This todolist does not belong to you !",
+            ], 401);
+        }
+
+        $list->name_todo = $request->name_todo;
+        $list->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist updated successfully!",
+            'list' => $list
+        ], 200);
+    }
+
+    /**
+     * Delete a todolist belonging to the user
+     */
+
+    public function userDelete(Request $request, $id_todo)
+    {
+        $list = To_do_list::where('id_todo', $id_todo)->first();
+        if($list == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This todolist does not exist !",
+            ], 401);
+        }
+
+        if($list->id_users != auth('sanctum')->user()->id){
+            return response()->json([
+                'status' => false,
+                'message' => "This todolist does not belong to you !",
+            ], 401);
+        }
+
+        $list->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist deleted successfully!",
         ], 200);
     }
 

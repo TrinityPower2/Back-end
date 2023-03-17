@@ -48,13 +48,63 @@ class EventController extends Controller
         ], 200);
     }
 
+    /** 
+     * Get an event as a user
+     */
+
+    public function userFetch(Request $request, $id_event)
+    {
+        $event = Event::where('id_event', $id_event)->first();
+        if($event == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This event does not exist !",
+            ], 404);
+        }
+
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($verification == null){
+            return response()->json([
+                'status' => false,
+                'message' => "You don't have access to this calendar.",
+            ], 401);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Event fetched successfully!",
+            'list' => $event
+        ], 200);
+    }
+
+
+    /**
+     * Get all events as a user
+     */
+
+    public function userFetchAll(Request $request)
+    {
+        $events = DB::table('events')
+        ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
+        ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+        ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
+        ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Events fetched successfully!",
+            'list' => $events
+        ], 200);
+    }
+
+
     /**
      * Edit an event as a user
      */
 
-    public function userEdit(Request $request)
+    public function userEdit(Request $request , $id_event)
     {
-        $event = Event::where('id_event', $request->id_event)->first();
+        $event = Event::where('id_event', $id_event)->first();
         if($event == null){
             return response()->json([
                 'status' => false,
@@ -91,9 +141,9 @@ class EventController extends Controller
      * Delete an event as a user
      */
 
-    public function userDelete(Request $request)
+    public function userDelete(Request $request, $id_event)
     {
-        $event = Event::where('id_event', $request->id_event)->first();
+        $event = Event::where('id_event', $id_event)->first();
         if($event == null){
             return response()->json([
                 'status' => false,

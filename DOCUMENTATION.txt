@@ -1,0 +1,31 @@
+TIME2DO API Documentation
+
+Notes:
+    @ = Adresse du backend. Par défaut http://127.0.0.1:8000 quand hébergé sur votre pc.
+    <x> = variable de la page frontend
+    ¤ = nécessite d'être envoyé avec le token d'authentification
+
+Routes:
+
+    Authentification:
+
+        Register : 
+            POST @/api/register/ 
+            {
+                "username": <username>,
+                "email": <email>,
+                "password": <password>
+            }
+
+        Login :
+            POST @/api/login/
+            {
+                "username": <username>,
+                "password": <password>
+            }
+
+        Logout (¤) :
+            POST @/api/logout/
+
+        Get User Info (¤) :
+            GET @/api/user/

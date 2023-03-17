@@ -19,30 +19,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('events/create', [EventController::class, 'userCreate']) -> middleware('auth:sanctum');
-Route::post('events/edit', [EventController::class, 'userEdit']) -> middleware('auth:sanctum');
-Route::post('events/delete', [EventController::class, 'userDelete']) -> middleware('auth:sanctum');
+Route::post('events', [EventController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::get('events/{id_event}', [EventController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('events', [EventController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::patch('events/{id_event}', [EventController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::delete('events/{id_event}', [EventController::class, 'userDelete']) -> middleware('auth:sanctum');
 
 Route::post('calendar/create', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
-Route::get('calendar/fetch', [CalendarController::class, 'userFetch']) -> middleware('auth:sanctum');
-Route::get('calendar/fetchall', [CalendarController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::get('calendar/{id_calendar}', [CalendarController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('calendar', [CalendarController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::patch('calendar/{id_calendar}', [CalendarController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::delete('calendar/{id_calendar}', [CalendarController::class, 'userDelete']) -> middleware('auth:sanctum');
 
 
-
-Route::post('tasks/create', [TaskController::class, 'userCreate']) -> middleware('auth:sanctum');
-Route::post('tasks/edit', [TaskController::class, 'userEdit']) -> middleware('auth:sanctum');
-Route::post('tasks/delete', [TaskController::class, 'userDelete']) -> middleware('auth:sanctum');
+Route::post('tasks', [TaskController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::get('tasks/{id_task}', [TaskController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('tasks', [TaskController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::patch('tasks/{id_task}', [TaskController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::delete('tasks/{id_task}', [TaskController::class, 'userDelete']) -> middleware('auth:sanctum');
 
 Route::post('todolist/create', [ToDoListController::class, 'userCreate']) -> middleware('auth:sanctum');
-Route::get('todolist/fetch', [ToDoListController::class, 'userFetch']) -> middleware('auth:sanctum');
-Route::get('todolist/fetchall', [ToDoListController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::get('todolist/{id_todo}', [ToDoListController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('todolist/', [ToDoListController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::patch('todolist/{id_todo}', [ToDoListController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::delete('todolist/{id_todo}', [ToDoListController::class, 'userDelete']) -> middleware('auth:sanctum');
 
 
-
-Route::post('timepref/create', [TimePreferencesController::class, 'userCreate']) -> middleware('auth:sanctum');
-Route::get('timepref/fetch', [TimePreferencesController::class, 'userFetch']) -> middleware('auth:sanctum');
-Route::post('timepref/edit', [TimePreferencesController::class, 'userEdit']) -> middleware('auth:sanctum');
-
+Route::post('timepref', [TimePreferencesController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::get('timepref/{id_timepref}', [TimePreferencesController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('timepref', [TimePreferencesController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::patch('timepref', [TimePreferencesController::class, 'userEdit']) -> middleware('auth:sanctum');
 
 
 Route::post('auth/register', [AuthController::class, 'createUser']);
