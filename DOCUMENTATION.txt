@@ -29,3 +29,151 @@ Routes:
 
         Get User Info (¤) :
             GET @/api/user/
+
+    Events:
+            
+        Get All Events (¤) :
+            GET @/api/events/
+
+        Get Event (¤) :
+            GET @/api/events/<id>
+
+        Create Event (¤) :
+            POST @/api/events/
+            {
+                "name": <name>,
+                "description": <description>,
+                "date": <date>,
+                "time": <time>,
+                "location": <location>,
+                "max_participants": <max_participants>,
+                "image": <image>
+            }
+
+        Update Event (¤) :
+            PUT @/api/events/<id>
+            {
+                "name": <name>,
+                "description": <description>,
+                "date": <date>,
+                "time": <time>,
+                "location": <location>,
+                "max_participants": <max_participants>,
+                "image": <image>
+            }
+
+        Delete Event (¤) :
+            DELETE @/api/events/<id>
+        
+    Calendars:
+        Get All Calendars (¤):
+            GET @/api/calendars/
+
+        Get Calendar (¤):
+            GET @/api/calendars/<id>
+
+        Create Calendar (¤) :
+            POST @/api/calendars/
+            {
+                "name": <name>,
+                "description": <description>,
+                "image": <image>
+            }
+
+        Update Calendar (¤) :
+            PUT @/api/calendars/<id>
+            {
+                "name": <name>,
+                "description": <description>,
+                "image": <image>
+            }
+
+        Delete Calendar (¤) :
+            DELETE @/api/calendars/<id>
+
+    Task:
+
+        Get All Tasks (¤) :
+            GET @/api/tasks/
+
+        Get Task (¤) :
+            GET @/api/tasks/<id>
+
+        Create Task (¤) :
+            POST @/api/tasks/
+            {
+                "name": <name>,
+                "description": <description>,
+                "date": <date>,
+                "time": <time>,
+                "location": <location>,
+                "image": <image>
+            }
+
+        Update Task (¤) :
+            PATCH @/api/tasks/<id>
+            {
+                "name": <name>,
+                "description": <description>,
+                "date": <date>,
+                "time": <time>,
+                "location": <location>,
+                "image": <image>
+            }
+
+        Delete Task (¤) :
+            DELETE @/api/tasks/<id>
+
+    todolist
+
+        Get All todolist (¤) :
+            GET @/api/todolist/
+
+        Get todolist (¤) :
+            GET @/api/todolist/<id>
+
+        Create todolist (¤) :
+            POST @/api/todolist/
+            {
+                "name": <name>,
+                "description": <description>,
+                "image": <image>
+            }
+
+        Update todolist (¤) :
+            PUT @/api/todolist/<id>
+            {
+                "name": <name>,
+                "description": <description>,
+                "image": <image>
+            }
+
+        Delete todolist (¤) :
+            DELETE @/api/todolist/<id>
+    
+    time preferences:
+
+        Get All time preferences (¤) :
+            GET @/api/timepreferences/
+
+        Get time preferences (¤) :
+            GET @/api/timepreferences/<name>
+
+        Create time preferences (¤) :
+            POST @/api/timepreferences/
+            {
+                "name": <name>,
+                "description": <description>,
+                "image": <image>
+            }
+
+        Update time preferences (¤) :
+            PUT @/api/timepreferences/<id>
+            {
+                "name": <name>,
+                "description": <description>,
+                "image": <image>
+            }
+
+        Delete time preferences (¤) :
+            DELETE @/api/timepreferences/<id>
