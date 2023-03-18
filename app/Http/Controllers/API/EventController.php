@@ -48,7 +48,7 @@ class EventController extends Controller
         ], 200);
     }
 
-    /** 
+    /**
      * Get an event as a user
      */
 
@@ -120,13 +120,20 @@ class EventController extends Controller
             ], 401);
         }
 
-        $event->name_event = $request->name_event;
-        $event->description = $request->description;
-        $event->start_date = new Carbon($request->start_date);
-        $event->length = $request->length;
-        $event->movable = $request->movable;
-        $event->priority_level = $request->priority_level;
-        $event->id_calendar = $request->id_calendar;
+        if($request->name_event != null)
+            $event->name_event = $request->name_event;
+        if($request->description != null)
+            $event->description = $request->description;
+        if($request->start_date != null)
+            $event->start_date = new Carbon($request->start_date);
+        if($request->length != null)
+            $event->length = $request->length;
+        if($request->movable != null)
+            $event->movable = $request->movable;
+        if($request->priority_level != null)
+            $event->priority_level = $request->priority_level;
+        if($request->id_calendar != null)
+            $event->id_calendar = $request->id_calendar;
 
         $event->save();
 

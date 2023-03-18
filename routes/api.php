@@ -25,7 +25,7 @@ Route::get('events', [EventController::class, 'userFetchAll']) -> middleware('au
 Route::patch('events/{id_event}', [EventController::class, 'userEdit']) -> middleware('auth:sanctum');
 Route::delete('events/{id_event}', [EventController::class, 'userDelete']) -> middleware('auth:sanctum');
 
-Route::post('calendar/create', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::post('calendar', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('calendar/{id_calendar}', [CalendarController::class, 'userFetch']) -> middleware('auth:sanctum');
 Route::get('calendar', [CalendarController::class, 'userFetchAll']) -> middleware('auth:sanctum');
 Route::patch('calendar/{id_calendar}', [CalendarController::class, 'userEdit']) -> middleware('auth:sanctum');
@@ -38,7 +38,7 @@ Route::get('tasks', [TaskController::class, 'userFetchAll']) -> middleware('auth
 Route::patch('tasks/{id_task}', [TaskController::class, 'userEdit']) -> middleware('auth:sanctum');
 Route::delete('tasks/{id_task}', [TaskController::class, 'userDelete']) -> middleware('auth:sanctum');
 
-Route::post('todolist/create', [ToDoListController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::post('todolist', [ToDoListController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('todolist/{id_todo}', [ToDoListController::class, 'userFetch']) -> middleware('auth:sanctum');
 Route::get('todolist/', [ToDoListController::class, 'userFetchAll']) -> middleware('auth:sanctum');
 Route::patch('todolist/{id_todo}', [ToDoListController::class, 'userEdit']) -> middleware('auth:sanctum');
@@ -48,13 +48,16 @@ Route::delete('todolist/{id_todo}', [ToDoListController::class, 'userDelete']) -
 Route::post('timepref', [TimePreferencesController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('timepref/{name_timepref}', [TimePreferencesController::class, 'userFetch']) -> middleware('auth:sanctum');
 Route::get('timepref', [TimePreferencesController::class, 'userFetchAll']) -> middleware('auth:sanctum');
-Route::patch('timepref', [TimePreferencesController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::patch('timepref/{name_timepref}', [TimePreferencesController::class, 'userEdit']) -> middleware('auth:sanctum');
 
 
 Route::post('auth/register', [AuthController::class, 'createUser']);
 Route::post('auth/login', [AuthController::class, 'loginUser']);
 Route::get('auth/logout', [AuthController::class, 'logoutUser']);
-Route::get('auth/user', [AuthController::class, 'user']) -> middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 
 
 

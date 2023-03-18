@@ -89,27 +89,23 @@ class TimePreferencesController extends Controller
      * Edit a preference as a user.
      */
 
-    public function userEdit(Request $request)
+    public function userEdit(Request $request, $name_timepref)
     {
-        $preference = Time_preferences::where('name_timepref', $request->name_timepref)->first();
-        if ($preference == null) {
+        $preference = DB::table('time_preferences')->where('name_timepref', '=', $name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($preference == null){
             return response()->json([
                 'status' => false,
-                'message' => "Preference not found!",
+                'message' => "This time preference have not been created !",
             ], 404);
         }
 
-        $verification = DB::table('time_preferences')->where('name_timepref', '=', $request->name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification != null){
-            return response()->json([
-                'status' => false,
-                'message' => "This time preference is already created !",
-            ], 401);
-        }
+        # We doesn't change the name of the preference
+        # That would be the same as deleting it.
 
-        $preference->name_timepref = $request->name_timepref;
-        $preference->start_time = new Carbon($request->start_time);
-        $preference->length = $request->length;
+        if($request->start_time != null)
+            $preference->start_time = new Carbon($request->start_time);
+        if($request->length != null)
+            $preference->length = $request->length;
 
         $preference->save();
 

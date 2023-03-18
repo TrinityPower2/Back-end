@@ -29,7 +29,7 @@ class TaskController extends Controller
         }
 
 
-        $event = Task::create(
+        $task = Task::create(
             [
                 'name_task'=>$request->name_task,
                 'date_day'=> new Carbon($request->date_day),
@@ -40,7 +40,7 @@ class TaskController extends Controller
         return response()->json([
             'status' => true,
             'message' => "Task Created successfully!",
-            'list' => $event
+            'list' => $task
         ], 200);
     }
 
@@ -109,17 +109,21 @@ class TaskController extends Controller
             ], 401);
         }
 
-        $task->name_task = $request->name_task;
-        $task->date_day = new Carbon($request->date_day);
-        $task->description = $request->description;
-        $task->id_todo = $request->id_todo;
+        if($request->name_task != null)
+            $task->name_task = $request->name_task;
+        if($request->date_day != null)
+            $task->date_day = new Carbon($request->date_day);
+        if($request->description != null)
+            $task->description = $request->description;
+        if($request->id_todo != null)
+            $task->id_todo = $request->id_todo;
 
         $task->save();
 
         return response()->json([
             'status' => true,
             'message' => "Task Edited successfully!",
-            'list' => $event
+            'list' => $task
         ], 200);
     }
 

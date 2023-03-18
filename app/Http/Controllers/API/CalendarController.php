@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use APP\Models\Event;
 use App\Models\Calendar;
 use App\Models\Calendar_belong_to;
 use Illuminate\Http\RedirectResponse;
@@ -76,8 +77,7 @@ class CalendarController extends Controller
      */
     public function userFetchAll(Request $request)
     {
-        $calendars = DB::table('events')
-            ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
+        $calendars = DB::table('calendars')
             ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
             ->where('calendar_belong_tos.id_users', auth('sanctum')->user()->id)
             ->get();
@@ -110,8 +110,12 @@ class CalendarController extends Controller
             ], 401);
         }
 
-        $calendar->name_calendar = $request->name_calendar;
-        $calendar->to_notify = $request->to_notify;
+        if($request->name_calendar != null)
+            $calendar->name_calendar = $request->name_calendar;
+
+        if($request->to_notify != null)
+            $calendar->to_notify = $request->to_notify;
+
         $calendar->save();
 
         return response()->json([
@@ -142,8 +146,14 @@ class CalendarController extends Controller
             ], 401);
         }
 
+        # We delete all the events of the calendar
+        $events = DB::table('events')->where('id_calendar', $id_calendar)->delete();
+
+        # We delete the entry in the calendar_belong_to table
+        # This may look convoluted but this is due to entries having no primary key
+        Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->delete();
+
         $calendar->delete();
-        $index->delete();
 
         return response()->json([
             'status' => true,

@@ -51,7 +51,7 @@ class ToDoListController extends Controller
             ], 401);
         }
 
-        $tasks = DB::table('tasks')->where('id_todo', $id_todo)->first();
+        $tasks = DB::table('tasks')->where('id_todo', $id_todo)->get();
 
         return response()->json([
             'status' => true,
@@ -66,8 +66,7 @@ class ToDoListController extends Controller
      */
     public function userFetchAll()
     {
-        $calendars = DB::table('tasks')
-            ->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')
+        $calendars = DB::table('to_do_lists')
             ->where('to_do_lists.id_users', auth('sanctum')->user()->id)
             ->get();
 
@@ -129,6 +128,9 @@ class ToDoListController extends Controller
                 'message' => "This todolist does not belong to you !",
             ], 401);
         }
+
+        # We delete all the tasks of the todolist
+        DB::table('tasks')->where('id_todo', $id_todo)->delete();
 
         $list->delete();
 
