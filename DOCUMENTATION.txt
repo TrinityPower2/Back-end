@@ -2,36 +2,52 @@ TIME2DO API Documentation
 
 Notes:
     @ = Adresse du backend. Par défaut http://127.0.0.1:8000 quand hébergé sur votre pc.
-    <x> = variable de la page frontend
+    <x> = variable de la page frontend (name is not important)
     ¤ = nécessite d'être envoyé avec le token d'authentification
 
 Routes:
 
     Authentification:
 
-        Register : 
-            POST @/api/register/ 
+        Register :
+            POST @/api/auth/register/
             {
-                "username": <username>,
-                "email": <email>,
-                "password": <password>
+                "name": <string>,
+                "email": <string>,
+                "password": <string>
+            }
+
+            OUTPUT:
+            {
+                {
+                    "status": true,
+                    "message": "User Created Successfully",
+                    "token": <string> => A garder pour les requêtes suivantes
+                }
             }
 
         Login :
-            POST @/api/login/
+            POST @/api/auth/login/
             {
-                "username": <username>,
-                "password": <password>
+                "email": <string>,
+                "password": <string>
+            }
+
+            OUTPUT:
+            {
+                "status": true,
+                "message": "User logged in successfully",
+                "token": <string> => A garder pour les requêtes suivantes
             }
 
         Logout (¤) :
-            POST @/api/logout/
+            GET @/api/auth/logout/
 
         Get User Info (¤) :
-            GET @/api/user/
+            GET @/api/auth/user/
 
     Events:
-            
+
         Get All Events (¤) :
             GET @/api/events/
 
@@ -41,30 +57,30 @@ Routes:
         Create Event (¤) :
             POST @/api/events/
             {
-                "name": <name>,
-                "description": <description>,
-                "date": <date>,
-                "time": <time>,
-                "location": <location>,
-                "max_participants": <max_participants>,
-                "image": <image>
+                "name_event": <string>,
+                "description": <string>,
+                "start_date": <string (format: YYYY-MM-DD HH:mm:SS) >,
+                "length": <string (in minutes)>,
+                "movable": <bool>,
+                "priority_level": <string ?>
+                "id_calendar": <string, id of the calendar to which you add the event>,
             }
 
         Update Event (¤) :
-            PUT @/api/events/<id>
+            PATCH @/api/events/<id>
             {
-                "name": <name>,
-                "description": <description>,
-                "date": <date>,
-                "time": <time>,
-                "location": <location>,
-                "max_participants": <max_participants>,
-                "image": <image>
+                "name_event": <string>,
+                "description": <string>,
+                "start_date": <string (format: YYYY-MM-DD HH:mm:SS) >,
+                "length": <string (in minutes)>,
+                "movable": <bool>,
+                "priority_level": <string ?>
+                "id_calendar": <string, id of the calendar to which you add the event>,
             }
 
         Delete Event (¤) :
             DELETE @/api/events/<id>
-        
+
     Calendars:
         Get All Calendars (¤):
             GET @/api/calendars/
@@ -75,17 +91,15 @@ Routes:
         Create Calendar (¤) :
             POST @/api/calendars/
             {
-                "name": <name>,
-                "description": <description>,
-                "image": <image>
+                "name_calendar": <string>,
+                "to_notify": <bool>
             }
 
         Update Calendar (¤) :
-            PUT @/api/calendars/<id>
+            PATCH @/api/calendars/<id>
             {
-                "name": <name>,
-                "description": <description>,
-                "image": <image>
+                "name_calendar": <string>,
+                "to_notify": <bool>
             }
 
         Delete Calendar (¤) :
@@ -102,23 +116,19 @@ Routes:
         Create Task (¤) :
             POST @/api/tasks/
             {
-                "name": <name>,
-                "description": <description>,
-                "date": <date>,
-                "time": <time>,
-                "location": <location>,
-                "image": <image>
+                "name_task": <string>,
+                "date_day": <string (format: YYYY-MM-DD)>,
+                "description": <string>,
+                "id_todo": <string, id of the calendar to which you add the event>
             }
 
         Update Task (¤) :
             PATCH @/api/tasks/<id>
             {
-                "name": <name>,
-                "description": <description>,
-                "date": <date>,
-                "time": <time>,
-                "location": <location>,
-                "image": <image>
+                "name_task": <string>,
+                "date_day": <string (format: YYYY-MM-DD)>,
+                "description": <string>,
+                "id_todo": <string, id of the calendar to which you add the event>
             }
 
         Delete Task (¤) :
@@ -135,45 +145,38 @@ Routes:
         Create todolist (¤) :
             POST @/api/todolist/
             {
-                "name": <name>,
-                "description": <description>,
-                "image": <image>
+                "name_todo": <string>,
             }
 
         Update todolist (¤) :
-            PUT @/api/todolist/<id>
+            PATCH @/api/todolist/<id>
             {
-                "name": <name>,
-                "description": <description>,
-                "image": <image>
+                "name_todo": <string>,
             }
 
         Delete todolist (¤) :
             DELETE @/api/todolist/<id>
-    
+
     time preferences:
 
         Get All time preferences (¤) :
             GET @/api/timepreferences/
 
-        Get time preferences (¤) :
+        Get a time preference by name (¤) :
             GET @/api/timepreferences/<name>
 
         Create time preferences (¤) :
             POST @/api/timepreferences/
             {
-                "name": <name>,
-                "description": <description>,
-                "image": <image>
+                "name_timepref": <string>,
+                "start_time": <string (format: HH:mm:SS )>,
+                "length": <string (in minutes)>
             }
 
         Update time preferences (¤) :
-            PUT @/api/timepreferences/<id>
+            PATCH @/api/timepreferences/<name_timepref>
             {
-                "name": <name>,
-                "description": <description>,
-                "image": <image>
+                "name_timepref": <string>,
+                "start_time": <string (format: HH:mm:SS )>,
+                "length": <string (in minutes)>
             }
-
-        Delete time preferences (¤) :
-            DELETE @/api/timepreferences/<id>

@@ -48,10 +48,32 @@ class TimePreferencesController extends Controller
         ], 200);
     }
 
+
+    /**
+     * Fetch a preference from its name as a user.
+     */
+
+    public function userFetch(Request $request, $name_timepref)
+    {
+        $preference = DB::table('time_preferences')->where('name_timepref', '=', $name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if($preference == null){
+            return response()->json([
+                'status' => false,
+                'message' => "Preference not found !",
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Preference Fetched successfully!",
+            'list' => $preference
+        ], 200);
+    }
+
     /**
      * Fetch all preferences of a user
      */
-    public function userFetchAll(Request $request, $id_timepref)
+    public function userFetchAll(Request $request)
     {
         $list = DB::table('time_preferences')->where('id_users', '=', auth('sanctum')->user()->id)->get();
 
