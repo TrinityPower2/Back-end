@@ -98,7 +98,9 @@ class ToDoListController extends Controller
             ], 401);
         }
 
-        $list->name_todo = $request->name_todo;
+        if($request->name_todo != null)
+            $list->name_todo = $request->name_todo;
+
         $list->save();
 
         return response()->json([

@@ -91,7 +91,7 @@ class TimePreferencesController extends Controller
 
     public function userEdit(Request $request, $name_timepref)
     {
-        $preference = DB::table('time_preferences')->where('name_timepref', '=', $name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $preference = Time_Preferences::where('name_timepref', '=', $name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($preference == null){
             return response()->json([
                 'status' => false,
