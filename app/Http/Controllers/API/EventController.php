@@ -36,8 +36,8 @@ class EventController extends Controller
                 'description' => $request->description,
                 'start_date' => new Carbon($request->start_date),
                 'length' => $request->length,
-                'movable' => true,
-                'priority_level' => 0,
+                'movable' => $request->movable,
+                'priority_level' => $request->priority_level,
                 'id_calendar' => $request->id_calendar,
             ]);
 
