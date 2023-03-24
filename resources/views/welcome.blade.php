@@ -45,7 +45,7 @@
 
                 <div class="mt-6">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Laravel</h2>
-                    <p class="mt-2 text-gray-600 dark:text-gray-400">The Time 2 Do API has been made with the Larvel framework.</p>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">The Time 2 Do API has been made with the Laravel framework.</p>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">You can check the following ressources to learn more about it : </p>
                 </div>
 
