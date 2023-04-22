@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('to_do_lists', function (Blueprint $table) {
             $table->id('id_todo');
-            $table->string('name_todo');
+            $table->string('name_todo', 50);
             $table->foreignId('id_users')->references('id')->on('Users');
         });
     }
