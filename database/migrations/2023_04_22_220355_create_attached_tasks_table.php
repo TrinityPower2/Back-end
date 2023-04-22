@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
-            $table->id('id_task');
+        Schema::create('attached_tasks', function (Blueprint $table) {
+            $table->id('id_att_task');
             $table->string('name_task', 50);
             $table->date('date_day');
             $table->string('description', 200);
-            $table->foreignId('id_todo')->references('id_todo')->on('to_do_lists');
+            $table->foreignId('id_todo')->references('id_att_todo')->on('Attached_to_do_list');
             $table->integer('priority_level');
             $table->boolean('is_done');
         });
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('attached_tasks');
     }
 };

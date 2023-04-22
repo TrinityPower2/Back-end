@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('calendars', function (Blueprint $table) {
-            $table->id('id_calendar');
-            $table->string('name_calendar', 50);
-            $table->boolean('to_notify');
-            $table->string('color', 15);
+        Schema::create('attached_to_do_lists', function (Blueprint $table) {
+            $table->id('id_att_todo');
+            $table->string('name_todo', 50);
+            $table->foreignId('id_event')->references('id')->on('Event');
         });
     }
 
@@ -24,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('calendars');
+        Schema::dropIfExists('attached_to_do_lists');
     }
 };

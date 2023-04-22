@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id('id_event');
-            $table->string('name_event');
-            $table->longText('description');
+            $table->string('name_event', 50);
+            $table->longText('description', 200);
             $table->dateTime('start_date')->nullable();
             $table->integer('length');
             $table->boolean('movable');
             $table->integer('priority_level');
             $table->foreignId('id_calendar')->references('id_calendar')->on('Calendars');
+            $table->integer('to_repeat'); # Each value will correspond to a form of repetition (ex: 0 = no repeat, 1 = weekly repet, ...)
+            $table->string('color', 15);
         });
     }
 
