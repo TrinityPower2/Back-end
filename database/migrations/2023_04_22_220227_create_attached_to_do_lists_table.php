@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('attached_to_do_lists', function (Blueprint $table) {
             $table->id('id_att_todo');
             $table->string('name_todo', 50);
-            $table->foreignId('id_event')->references('id')->on('Event');
+            $table->foreignId('id_event')->references('id_event')->on('Events');
         });
     }
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name_task', 50);
             $table->date('date_day');
             $table->string('description', 200);
-            $table->foreignId('id_todo')->references('id_att_todo')->on('Attached_to_do_list');
+            $table->foreignId('id_todo')->references('id_att_todo')->on('Attached_to_do_lists');
             $table->integer('priority_level');
             $table->boolean('is_done');
         });
