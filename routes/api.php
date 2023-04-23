@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\ToDoListController;
 use App\Http\Controllers\Api\TimePreferencesController;
+use App\Http\Controllers\Api\IcsImportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -62,8 +63,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-
 Route::get('ping', function () {
     return response()->json(['pong' => true]);
 });
+
+Route::post('icsimport', [IcsImportController::class, 'parseIcs']) -> middleware('auth:sanctum');
