@@ -15,6 +15,7 @@ class Calendar extends Model
 
     protected $fillable = [
         'name_calendar',
-        'to_notify'
+        'to_notify',
+        'color'
     ];
 }

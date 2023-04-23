@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_calendar');
             $table->string('name_calendar', 50);
             $table->boolean('to_notify');
-            $table->string('color', 15);
+            $table->string('color', 15)->nullable();
         });
     }
 

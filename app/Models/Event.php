@@ -20,6 +20,8 @@ class Event extends Model
         'length',
         'movable',
         'priority_level',
-        'id_calendar'
+        'id_calendar',
+        'to_repeat',
+        'color'
     ];
 }
