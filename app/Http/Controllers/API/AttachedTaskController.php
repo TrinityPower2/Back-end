@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Task;
-use App\Models\To_do_list;
+use App\Models\AttachedTask;
+use App\Models\AttachedToDoList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
 use Illuminate\Http\Request;
@@ -19,8 +19,17 @@ class TaskController extends Controller
 
     public function userCreate(Request $request)
     {
+        // We get the id of the attached list
+        // We get the id of the event contained in the attached list
 
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $request->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $request->id_todo)->first();
+        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
+        $calendar = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->first();
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+
+        //$verification1 = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $request->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        //$verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $request->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+
         if($verification == null){
             return response()->json([
                 'status' => false,
@@ -29,12 +38,12 @@ class TaskController extends Controller
         }
 
 
-        $task = Task::create(
+        $task = AttachedTask::create(
             [
                 'name_task'=>$request->name_task,
                 'date_day'=> new Carbon($request->date_day),
                 'description'=>$request->description,
-                'id_todo'=>$request->id_todo,
+                'id_todo'=>$attachedlist->id_attached_todo,
                 'priority_level'=>$request->priority_level,
                 'is_done'=> false
             ]);
@@ -47,12 +56,12 @@ class TaskController extends Controller
     }
 
     /**
-     * Fetch a belonging to the user
+     * Fetch an attached task belonging to the user
      */
 
     public function userFetch(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $id_task)->first();
+        $task = AttachedTask::where('id_att_task', $id_task)->first();
         if ($task == null) {
             return response()->json([
                 'status' => false,
@@ -60,7 +69,10 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $task->id_todo)->first();
+        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
+        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification == null){
             return response()->json([
                 'status' => false,
@@ -76,26 +88,27 @@ class TaskController extends Controller
     }
 
     /**
-     * Fetch all tasks  belonging to the user
+     * Fetch all attached tasks belonging to the user
      */
-
+    /*
     public function userFetchAll(Request $request){
-        $tasks = DB::table('tasks')->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')->where('to_do_lists.id_users', '=', auth('sanctum')->user()->id)->get();
+        $tasks = DB::table('attached_tasks')->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')->where('to_do_lists.id_users', '=', auth('sanctum')->user()->id)->get();
         return response()->json([
             'status' => true,
             'message' => "Tasks fetched successfully!",
             'list' => $tasks
         ], 200);
     }
+    */
 
 
     /**
-     * Edit a task as a user.
+     * Edit an attached task as a user.
      */
 
     public function userEdit(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $id_task)->first();
+        $task = AttachedTask::where('id_att_task', $id_task)->first();
         if ($task == null) {
             return response()->json([
                 'status' => false,
@@ -103,7 +116,10 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $task->id_todo)->first();
+        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
+        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification == null){
             return response()->json([
                 'status' => false,
@@ -134,12 +150,12 @@ class TaskController extends Controller
     }
 
     /**
-     * Delete a task as a user.
+     * Delete an attached task as a user.
      */
 
     public function userDelete(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $id_task)->first();
+        $task = AttachedTask::where('id_att_task', $id_task)->first();
         if ($task == null) {
             return response()->json([
                 'status' => false,
@@ -147,7 +163,10 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $task->id_todo)->first();
+        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
+        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($verification == null){
             return response()->json([
                 'status' => false,

@@ -17,6 +17,8 @@ class Task extends Model
         'name_task',
         'description',
         'date_day',
-        'id_todo'
+        'id_todo',
+        'priority_level',
+        'is_done'
     ];
 }

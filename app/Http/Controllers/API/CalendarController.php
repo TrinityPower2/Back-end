@@ -22,7 +22,8 @@ class CalendarController extends Controller
         $event = Calendar::create(
             [
                 'name_calendar'=>$request->name_calendar,
-                'to_notify'=>false
+                'to_notify'=>false,
+                'color'=>$request->color,
             ]);
 
         $index = Calendar_belong_to::create(
@@ -112,9 +113,13 @@ class CalendarController extends Controller
 
         if($request->name_calendar != null)
             $calendar->name_calendar = $request->name_calendar;
-
         if($request->to_notify != null)
             $calendar->to_notify = $request->to_notify;
+        if($request->color != null){
+                $calendar->color = $request->color;
+                //We also update the color of the events
+                $events = DB::table('events')->where('id_calendar', $id_calendar)->update(['color' => $request->color]);
+        }
 
         $calendar->save();
 

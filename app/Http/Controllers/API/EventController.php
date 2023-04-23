@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Calendar;
 use App\Models\Event;
+use App\Models\AttachedToDoList;
+use App\Models\AttachedTask;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -39,6 +42,15 @@ class EventController extends Controller
                 'movable' => $request->movable,
                 'priority_level' => $request->priority_level,
                 'id_calendar' => $request->id_calendar,
+                'to_repeat' => $request->to_repeat,
+                'color' => $verification->color, //The color of the calendar
+            ]);
+
+        //Create the attached to do list
+        $todolist = AttachedToDoList::create(
+            [
+                'id_event' => $event->id_event,
+                'name_todo' => $request->name_event.' To Do List',
             ]);
 
         return response()->json([
@@ -134,6 +146,8 @@ class EventController extends Controller
             $event->priority_level = $request->priority_level;
         if($request->id_calendar != null)
             $event->id_calendar = $request->id_calendar;
+        if($request->to_repeat != null)
+            $event->to_repeat = $request->to_repeat;
 
         $event->save();
 
