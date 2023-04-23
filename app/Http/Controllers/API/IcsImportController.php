@@ -50,7 +50,7 @@ class IcsImportController extends Controller
 
             echo($ical->todoCount . "\n");
             //var_dump($ical->cal);
-            $events = $ical->eventsFromRange(Carbon::now(), Carbon::now()->addYears(10));
+            $selected_events = $ical->eventsFromRange(Carbon::now(), Carbon::now()->addYears(10));
 
             //We delete the file after parsing it to save space
             Storage::delete($path);
@@ -71,30 +71,43 @@ class IcsImportController extends Controller
                 ]);
 
             //We will now create an event entry for each selected_event in the ics file
-            foreach ($events as $event) {
+
+
+            $events = [];
+
+            foreach ($selected_events as $temp_event) {
+
+                //If the event has no duration, we set it to endTime-startTime
+                if($temp_event->duration==null){
+                    $temp_event->duration = Carbon::parse($temp_event->dtstart)->diffInMinutes(Carbon::parse($temp_event->dtend));
+                }
 
                 //We create the event
                 $event = Event::create(
                     [
                         'id_calendar' => $calendar->id_calendar,
-                        'name_event' => $event->summary,
-                        'description' => $event->description,
-                        'start_date' => Carbon::parse($event->dtstart),
-                        'length' => 60, //TO CHANGE, SOMETIMES CAN BE NULL
+                        'name_event' => $temp_event->summary,
+                        'description' => $temp_event->description,
+                        'start_date' => Carbon::parse($temp_event->dtstart),
+                        'length' => $temp_event->duration, //TO CHANGE, SOMETIMES CAN BE NULL
                         'movable' => false,
                         'priority_level' => 10, //Is that redundant with movable ? Mayhaps, let's keep it for now
                         'to_repeat' => 0, //Doesn't appear in the ics file ?
                         'color' => $request->color_calendar,
                         //'location_event' => $event->location,
                     ]);
+
+                array_push($events, $event);
             }
 
         return response()->json([
             'message' => 'File parsed successfully',
             'path' => $path,
-            'event_count' => $ical->eventCount,
+            'total_event_count' => $ical->eventCount,
             'selected_events_count' => count($events),
-            'selected_events' => $events,
+            'selected_events' => $selected_events,
+            'created_calendar' => $calendar,
+            'created_events' => $events,
             'now' => Carbon::now(),
         ], 200);
     }
