@@ -45,16 +45,11 @@ class IcsImportController extends Controller
                 'httpUserAgent'               => null,  // Default value
                 'skipRecurrence'              => false, // Default value
             ));
-            // $ical->initFile('ICal.ics');
-            // $ical->initUrl('https://raw.githubusercontent.com/u01jmg3/ics-parser/master/examples/ICal.ics', $username = null, $password = null, $userAgent = null);
-
-            echo($ical->todoCount . "\n");
-            //var_dump($ical->cal);
-            $selected_events = $ical->eventsFromRange(Carbon::now(), Carbon::now()->addYears(10));
-
             //We delete the file after parsing it to save space
             Storage::delete($path);
 
+            //We get the events from the ics file that are in the next 100 years from now
+            $selected_events = $ical->eventsFromRange(Carbon::now(), Carbon::now()->addYears(100));
 
             //We create the calendar that will contain the events
             $calendar = Calendar::create(
