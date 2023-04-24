@@ -108,7 +108,7 @@ class IcsImportController extends Controller
             'path' => $path,
             'total_event_count' => $ical->eventCount,
             'selected_events_count' => count($events),
-            'selected_events' => $selected_events,
+            //'selected_events' => $selected_events,
             'created_calendar' => $calendar,
             'created_events' => $events,
             'now' => Carbon::now(),
