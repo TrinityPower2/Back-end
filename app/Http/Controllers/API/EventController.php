@@ -32,6 +32,7 @@ class EventController extends Controller
             ], 401);
         }
 
+        $calendar = Calendar::where('id_calendar', $request->id_calendar)->first();
 
         $event = Event::create(
             [
@@ -43,7 +44,7 @@ class EventController extends Controller
                 'priority_level' => $request->priority_level,
                 'id_calendar' => $request->id_calendar,
                 'to_repeat' => $request->to_repeat,
-                'color' => $verification->color, //The color of the calendar
+                'color' => $calendar->color, //The color of the calendar
             ]);
 
         //Create the attached to do list
