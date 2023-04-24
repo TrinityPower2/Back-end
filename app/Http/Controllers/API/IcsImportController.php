@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Calendar;
 use App\Models\Calendar_belong_to;
+use App\Models\AttachedToDoList;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -90,6 +91,13 @@ class IcsImportController extends Controller
                         'to_repeat' => 0, //Doesn't appear in the ics file ?
                         'color' => $request->color_calendar,
                         //'location_event' => $event->location,
+                    ]);
+
+                //Create the attached to do list
+                $todolist = AttachedToDoList::create(
+                    [
+                        'id_event' => $event->id_event,
+                        'name_todo' => $event->name_event.' To Do List',
                     ]);
 
                 array_push($events, $event);

@@ -82,10 +82,16 @@ class EventController extends Controller
             ], 401);
         }
 
+        //Get the attached to do list
+        $todolist = AttachedToDoList::where('id_event', $event->id_event)->first();
+        //Get the attached tasks
+        $tasks = AttachedTask::where('id_todo', $todolist->id_att_todo)->get();
+
         return response()->json([
             'status' => true,
             'message' => "Event fetched successfully!",
-            'list' => $event
+            'list' => $event,
+            'tasks' => $tasks
         ], 200);
     }
 
@@ -179,6 +185,17 @@ class EventController extends Controller
                 'message' => "You don't have access to this calendar.",
             ], 401);
         }
+
+        //Delete the attached tasks
+
+        $todolist = AttachedToDoList::where('id_event', $event->id_event)->first();
+        $tasks = AttachedTask::where('id_todo', $todolist->id_att_todo)->get();
+        foreach($tasks as $task){
+            $task->delete();
+        }
+
+        //Delete the attached to do list
+        $todolist->delete();
 
         $event->delete();
 

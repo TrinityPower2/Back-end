@@ -1,6 +1,7 @@
 <?php
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\AttachedTaskController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\ToDoListController;
@@ -19,6 +20,12 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::post('atasks', [AttachedTaskController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::get('atasks/{id_task}', [AttachedTaskController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('atasks', [AttachedTaskController::class, 'userFetchAll']) -> middleware('auth:sanctum');
+Route::patch('atasks/{id_task}', [AttachedTaskController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::delete('atasks/{id_task}', [AttachedTaskController::class, 'userDelete']) -> middleware('auth:sanctum');
 
 Route::post('events', [EventController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('events/{id_event}', [EventController::class, 'userFetch']) -> middleware('auth:sanctum');

@@ -11,8 +11,27 @@ use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
 
-class TaskController extends Controller
+class AttachedTaskController extends Controller
 {
+
+    private function checkBelongingByList($id_att_todo,$id_user)
+    {
+        $attachedlist = DB::table('attached_to_do_lists')->where('id_att_todo', '=', $id_att_todo)->first();
+        $event = DB::table('events')->where('id_event', '=', $attachedlist->id_event)->first();
+        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', $id_user)->first();
+        return $verification;
+    }
+
+    private function checkBelongingByEvent($id_event,$id_user)
+    {
+        $event = DB::table('events')->where('id_event', '=', $id_event)->first();
+        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
+        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', $id_user)->first();
+        return $verification;
+    }
+
+
     /**
      * Create a new task as a user.
      */
@@ -20,15 +39,7 @@ class TaskController extends Controller
     public function userCreate(Request $request)
     {
         // We get the id of the attached list
-        // We get the id of the event contained in the attached list
-
-        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $request->id_todo)->first();
-        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
-        $calendar = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->first();
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-
-        //$verification1 = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $request->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        //$verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $request->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $verification = $this->checkBelongingByEvent($request->id_event, auth('sanctum')->user()->id);
 
         if($verification == null){
             return response()->json([
@@ -37,21 +48,28 @@ class TaskController extends Controller
             ], 401);
         }
 
+        //Get the event
+
+        $event = DB::table('events')->where('id_event', '=', $request->id_event)->first();
+
+        //Get the attached list of this event
+        $attachedlist = DB::table('attached_to_do_lists')->where('id_event', '=', $request->id_event)->first();
 
         $task = AttachedTask::create(
             [
                 'name_task'=>$request->name_task,
-                'date_day'=> new Carbon($request->date_day),
+                'date_day'=> $event->start_date, // It is linked to the event, the event has a date, so the task has the same date
                 'description'=>$request->description,
-                'id_todo'=>$attachedlist->id_attached_todo,
+                'id_todo'=>$attachedlist->id_att_todo,
                 'priority_level'=>$request->priority_level,
                 'is_done'=> false
             ]);
 
+
         return response()->json([
             'status' => true,
             'message' => "Task Created successfully!",
-            'list' => $task
+            'task' => $task
         ], 200);
     }
 
@@ -69,10 +87,8 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $task->id_todo)->first();
-        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
-        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $verification = $this->checkBelongingByList($task->id_todo, auth('sanctum')->user()->id);
+
         if($verification == null){
             return response()->json([
                 'status' => false,
@@ -83,23 +99,30 @@ class TaskController extends Controller
         return response()->json([
             'status' => true,
             'message' => "Task fetched successfully!",
-            'list' => $task
+            'task' => $task
         ], 200);
     }
 
-    /**
-     * Fetch all attached tasks belonging to the user
-     */
-    /*
+
     public function userFetchAll(Request $request){
-        $tasks = DB::table('attached_tasks')->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')->where('to_do_lists.id_users', '=', auth('sanctum')->user()->id)->get();
+
+        //We have to get all the attached lists of the user
+        $attachedlists = DB::table('attached_to_do_lists')->get();
+        $tasks = array();
+        foreach($attachedlists as $attachedlist){
+            $verification = $this->checkBelongingByList($attachedlist->id_att_todo, auth('sanctum')->user()->id);
+            if($verification != null){
+                $tasks = array_merge($tasks, DB::table('attached_tasks')->where('id_todo', '=', $attachedlist->id_att_todo)->get()->toArray());
+            }
+        }
+
+
         return response()->json([
             'status' => true,
             'message' => "Tasks fetched successfully!",
-            'list' => $tasks
+            'tasks' => $tasks
         ], 200);
     }
-    */
 
 
     /**
@@ -116,10 +139,8 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $task->id_todo)->first();
-        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
-        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $verification = $this->checkBelongingByList($task->id_todo, auth('sanctum')->user()->id);
+
         if($verification == null){
             return response()->json([
                 'status' => false,
@@ -129,12 +150,8 @@ class TaskController extends Controller
 
         if($request->name_task != null)
             $task->name_task = $request->name_task;
-        if($request->date_day != null)
-            $task->date_day = new Carbon($request->date_day);
         if($request->description != null)
             $task->description = $request->description;
-        if($request->id_todo != null)
-            $task->id_todo = $request->id_todo;
         if($request->priority_level != null)
             $task->priority_level = $request->priority_level;
         if($request->is_done != null)
@@ -145,7 +162,7 @@ class TaskController extends Controller
         return response()->json([
             'status' => true,
             'message' => "Task Edited successfully!",
-            'list' => $task
+            'task' => $task
         ], 200);
     }
 
@@ -163,10 +180,8 @@ class TaskController extends Controller
             ], 404);
         }
 
-        $attachedlist = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $task->id_todo)->first();
-        $event = DB::table('attached_to_do_lists')->where('id_attached_todo', '=', $attachedlist->id_event)->first();
-        $calendar = DB::table('calendars')->where('id_calendar', '=', $event->id_calendar)->first();
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $calendar->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        $verification = $this->checkBelongingByList($task->id_todo, auth('sanctum')->user()->id);
+
         if($verification == null){
             return response()->json([
                 'status' => false,
