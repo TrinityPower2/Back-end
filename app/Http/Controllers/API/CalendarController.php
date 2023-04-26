@@ -72,6 +72,53 @@ class CalendarController extends Controller
         ], 200);
     }
 
+    public function userFetchPerDay(Request $request, $id_calendar)
+    {
+        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
+        if($calendar == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not exist !",
+            ], 401);
+        }
+
+        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if($index == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not belong to you !",
+            ], 401);
+        }
+
+        $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
+
+        //We now have to create an array for each of the following 30 days, then we have to navigate through the events, and put events of the same day in the same array
+        $eventsPerDay = array();
+        for($i = 0; $i < 30; $i++){
+            $eventsPerDay[$i] = array();
+        }
+
+        //Now if an event is before today or after the 30th from now on, it is discarded
+        //If it is today, it is added to the first array of $eventsPerDay , and so on...
+
+        foreach($events as $event){
+            $date = date_create($event->start_date);
+            $today = date_create(date("Y-m-d"));
+            $diff = date_diff($date, $today);
+            $diff = $diff->format("%a");
+            if($diff < 30 && $diff >= 0){
+                array_push($eventsPerDay[$diff], $event);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendar fetched successfully!",
+            'calendar' => $calendar,
+            'events' => $eventsPerDay
+        ], 200);
+    }
+
     /**
      * Fetch all events of every calendars belonging to the user
      * ## May probably be improved somehow...

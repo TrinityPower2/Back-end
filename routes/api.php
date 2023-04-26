@@ -35,6 +35,7 @@ Route::delete('events/{id_event}', [EventController::class, 'userDelete']) -> mi
 
 Route::post('calendar', [CalendarController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('calendar/{id_calendar}', [CalendarController::class, 'userFetch']) -> middleware('auth:sanctum');
+Route::get('calendar/perday/{id_calendar}', [CalendarController::class, 'userFetchPerDay']) -> middleware('auth:sanctum');
 Route::get('calendar', [CalendarController::class, 'userFetchAll']) -> middleware('auth:sanctum');
 Route::patch('calendar/{id_calendar}', [CalendarController::class, 'userEdit']) -> middleware('auth:sanctum');
 Route::delete('calendar/{id_calendar}', [CalendarController::class, 'userDelete']) -> middleware('auth:sanctum');
