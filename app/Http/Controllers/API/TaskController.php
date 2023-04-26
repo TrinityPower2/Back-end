@@ -13,6 +13,34 @@ use Carbon\Carbon;
 
 class TaskController extends Controller
 {
+    private function taskCheck4xx(Request $request, $id_task)
+    {
+        $task = Task::where('id_task', $id_task)->first();
+        if ($task == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Task not found!",
+            ], 404);
+        }
+        $list = To_do_list::where('id_todo', $task->id_todo)->first();
+        if ($list == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+        $index = DB::table('to_do_lists')->where('id_todo', '=', $list->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+        if ($index == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "The list doesn't belong to you!",
+            ], 401);
+        }
+
+        return $task;
+    }
+
+
     /**
      * Create a new task as a user.
      */
@@ -52,20 +80,10 @@ class TaskController extends Controller
 
     public function userFetch(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $id_task)->first();
-        if ($task == null) {
-            return response()->json([
-                'status' => false,
-                'message' => "Task not found!",
-            ], 404);
-        }
-
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "You don't have access to this list!",
-            ], 401);
+        $task = $this->taskCheck4xx($request, $id_task);
+        // If $task is a response, then it's an error and we return it
+        if (get_class($task) == "Illuminate\Http\JsonResponse") {
+            return $task;
         }
 
         return response()->json([
@@ -95,20 +113,10 @@ class TaskController extends Controller
 
     public function userEdit(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $id_task)->first();
-        if ($task == null) {
-            return response()->json([
-                'status' => false,
-                'message' => "Task not found!",
-            ], 404);
-        }
-
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "You don't have access to this list!",
-            ], 401);
+        $task = $this->taskCheck4xx($request, $id_task);
+        // If $task is a response, then it's an error and we return it
+        if (get_class($task) == "Illuminate\Http\JsonResponse") {
+            return $task;
         }
 
         if($request->name_task != null)
@@ -139,20 +147,10 @@ class TaskController extends Controller
 
     public function userDelete(Request $request, $id_task)
     {
-        $task = Task::where('id_task', $id_task)->first();
-        if ($task == null) {
-            return response()->json([
-                'status' => false,
-                'message' => "Task not found!",
-            ], 404);
-        }
-
-        $verification = DB::table('to_do_lists')->where('id_todo', '=', $task->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "You don't have access to this list!",
-            ], 401);
+        $task = $this->taskCheck4xx($request, $id_task);
+        // If $task is a response, then it's an error and we return it
+        if (get_class($task) == "Illuminate\Http\JsonResponse") {
+            return $task;
         }
 
         $task->delete();

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Calendar;
+use App\Models\Calendar_belong_to;
 use App\Models\Event;
 use App\Models\AttachedToDoList;
 use App\Models\AttachedTask;
@@ -16,6 +17,26 @@ use Carbon\Carbon;
 
 class EventController extends Controller
 {
+
+    private function eventCheck4xx(Request $request, $id_event)
+    {
+        $event = Event::where('id_event', $id_event)->first();
+        if ($event == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Event not found!",
+            ], 404);
+        }
+        $index = Calendar_belong_to::where('id_calendar', $event->id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($index == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "The event doesn't belong to you!",
+            ], 401);
+        }
+
+        return $event;
+    }
 
     /**
      * Create a new event as a user
@@ -67,20 +88,10 @@ class EventController extends Controller
 
     public function userFetch(Request $request, $id_event)
     {
-        $event = Event::where('id_event', $id_event)->first();
-        if($event == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This event does not exist !",
-            ], 404);
-        }
-
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "You don't have access to this calendar.",
-            ], 401);
+        $event = $this->eventCheck4xx($request, $id_event);
+        //If $event is a response, then it is an error and we return it
+        if (get_class($event) == "Illuminate\Http\JsonResponse") {
+            return $event;
         }
 
         //Get the attached to do list
@@ -123,20 +134,10 @@ class EventController extends Controller
 
     public function userEdit(Request $request , $id_event)
     {
-        $event = Event::where('id_event', $id_event)->first();
-        if($event == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This event does not exist !",
-            ], 404);
-        }
-
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "You don't have access to this calendar.",
-            ], 401);
+        $event = $this->eventCheck4xx($request, $id_event);
+        //If $event is a response, then it is an error and we return it
+        if (get_class($event) == "Illuminate\Http\JsonResponse") {
+            return $event;
         }
 
         if($request->name_event != null)
@@ -171,20 +172,10 @@ class EventController extends Controller
 
     public function userDelete(Request $request, $id_event)
     {
-        $event = Event::where('id_event', $id_event)->first();
-        if($event == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This event does not exist !",
-            ], 404);
-        }
-
-        $verification = DB::table('calendar_belong_tos')->where('id_calendar', '=', $event->id_calendar)->where('id_users', '=', auth('sanctum')->user()->id)->first();
-        if($verification == null){
-            return response()->json([
-                'status' => false,
-                'message' => "You don't have access to this calendar.",
-            ], 401);
+        $event = $this->eventCheck4xx($request, $id_event);
+        //If $event is a response, then it is an error and we return it
+        if (get_class($event) == "Illuminate\Http\JsonResponse") {
+            return $event;
         }
 
         //Delete the attached tasks

@@ -13,6 +13,27 @@ use Illuminate\Support\Facades\DB;
 
 class CalendarController extends Controller
 {
+
+    private function calendarCheck4xx(Request $request, $id_calendar)
+    {
+        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
+        if ($calendar == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Calendar not found!",
+            ], 404);
+        }
+        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($index == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "The calendar doesn't belong to you!",
+            ], 401);
+        }
+
+        return $calendar;
+    }
+
     /**
      * Create a new calendar as a user
      */
@@ -46,20 +67,10 @@ class CalendarController extends Controller
      */
     public function userFetch(Request $request, $id_calendar)
     {
-        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
-        if($calendar == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not exist !",
-            ], 401);
-        }
-
-        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
-        if($index == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not belong to you !",
-            ], 401);
+        $calendar = $this->calendarCheck4xx($request, $id_calendar);
+        //if $calendar is a response, then it is an error, and we return it
+        if (get_class($calendar) == "Illuminate\Http\JsonResponse") {
+            return $calendar;
         }
 
         $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
@@ -74,27 +85,18 @@ class CalendarController extends Controller
 
     public function userFetchPerDay(Request $request, $id_calendar)
     {
-        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
-        if($calendar == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not exist !",
-            ], 401);
-        }
-
-        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
-        if($index == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not belong to you !",
-            ], 401);
+        $calendar = $this->calendarCheck4xx($request, $id_calendar);
+        //if $calendar is a response, then it is an error, and we return it
+        if (get_class($calendar) == "Illuminate\Http\JsonResponse") {
+            return $calendar;
         }
 
         $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
 
         //We now have to create an array for each of the following 30 days, then we have to navigate through the events, and put events of the same day in the same array
+        $number_of_days = 30;
         $eventsPerDay = array();
-        for($i = 0; $i < 30; $i++){
+        for($i = 0; $i < $number_of_days; $i++){
             $eventsPerDay[$i] = array();
         }
 
@@ -106,7 +108,7 @@ class CalendarController extends Controller
             $today = date_create(date("Y-m-d"));
             $diff = date_diff($date, $today);
             $diff = $diff->format("%a"); // We get the number of days between the event and today
-            if($diff < 30 && $diff >= 0){
+            if($diff < $number_of_days && $diff >= 0){
                 array_push($eventsPerDay[$diff], $event);
             }
         }
@@ -121,20 +123,10 @@ class CalendarController extends Controller
 
     public function userFetchPerWeek(Request $request, $id_calendar)
     {
-        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
-        if($calendar == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not exist !",
-            ], 401);
-        }
-
-        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
-        if($index == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not belong to you !",
-            ], 401);
+        $calendar = $this->calendarCheck4xx($request, $id_calendar);
+        //if $calendar is a response, then it is an error, and we return it
+        if (get_class($calendar) == "Illuminate\Http\JsonResponse") {
+            return $calendar;
         }
 
         $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
@@ -196,20 +188,10 @@ class CalendarController extends Controller
      */
     public function userEdit(Request $request, $id_calendar)
     {
-        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
-        if($calendar == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not exist !",
-            ], 404);
-        }
-
-        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
-        if($index == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not belong to you !",
-            ], 401);
+        $calendar = $this->calendarCheck4xx($request, $id_calendar);
+        //if $calendar is a response, then it is an error, and we return it
+        if (get_class($calendar) == "Illuminate\Http\JsonResponse") {
+            return $calendar;
         }
 
         if($request->name_calendar != null)
@@ -236,20 +218,10 @@ class CalendarController extends Controller
      */
     public function userDelete(Request $request, $id_calendar)
     {
-        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
-        if($calendar == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not exist !",
-            ], 404);
-        }
-
-        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
-        if($index == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This calendar does not belong to you !",
-            ], 401);
+        $calendar = $this->calendarCheck4xx($request, $id_calendar);
+        //if $calendar is a response, then it is an error, and we return it
+        if (get_class($calendar) == "Illuminate\Http\JsonResponse") {
+            return $calendar;
         }
 
         # We delete all the events of the calendar

@@ -11,6 +11,26 @@ use Illuminate\Support\Facades\DB;
 
 class ToDoListController extends Controller
 {
+
+    private function listCheck4xx(Request $request, $id_todo)
+    {
+        $list = To_do_list::where('id_todo', $id_todo)->first();
+        if ($list == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+        if($list->id_users != auth('sanctum')->user()->id){
+            return response()->json([
+                'status' => false,
+                'message' => "This todolist does not belong to you !",
+            ], 401);
+        }
+
+        return $list;
+    }
+
     /**
      * Create a new todolist as a user
      */
@@ -36,19 +56,10 @@ class ToDoListController extends Controller
 
     public function userFetch(Request $request, $id_todo)
     {
-        $list = To_do_list::where('id_todo', $id_todo)->first();
-        if($list == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This todolist does not exist !",
-            ], 401);
-        }
-
-        if($list->id_users != auth('sanctum')->user()->id){
-            return response()->json([
-                'status' => false,
-                'message' => "This todolist does not belong to you !",
-            ], 401);
+        $list = $this->listCheck4xx($request, $id_todo);
+        // If $list is a response, then it's an error and we return it
+        if(get_class($list) == "Illuminate\Http\JsonResponse") {
+            return $list;
         }
 
         $tasks = DB::table('tasks')->where('id_todo', $id_todo)->get();
@@ -83,19 +94,10 @@ class ToDoListController extends Controller
 
     public function userEdit(Request $request, $id_todo)
     {
-        $list = To_do_list::where('id_todo', $id_todo)->first();
-        if($list == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This todolist does not exist !",
-            ], 401);
-        }
-
-        if($list->id_users != auth('sanctum')->user()->id){
-            return response()->json([
-                'status' => false,
-                'message' => "This todolist does not belong to you !",
-            ], 401);
+        $list = $this->listCheck4xx($request, $id_todo);
+        // If $list is a response, then it's an error and we return it
+        if(get_class($list) == "Illuminate\Http\JsonResponse") {
+            return $list;
         }
 
         if($request->name_todo != null)
@@ -116,19 +118,10 @@ class ToDoListController extends Controller
 
     public function userDelete(Request $request, $id_todo)
     {
-        $list = To_do_list::where('id_todo', $id_todo)->first();
-        if($list == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This todolist does not exist !",
-            ], 401);
-        }
-
-        if($list->id_users != auth('sanctum')->user()->id){
-            return response()->json([
-                'status' => false,
-                'message' => "This todolist does not belong to you !",
-            ], 401);
+        $list = $this->listCheck4xx($request, $id_todo);
+        // If $list is a response, then it's an error and we return it
+        if(get_class($list) == "Illuminate\Http\JsonResponse") {
+            return $list;
         }
 
         # We delete all the tasks of the todolist
