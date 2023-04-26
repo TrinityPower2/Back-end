@@ -105,7 +105,7 @@ class CalendarController extends Controller
             $date = date_create($event->start_date);
             $today = date_create(date("Y-m-d"));
             $diff = date_diff($date, $today);
-            $diff = $diff->format("%a");
+            $diff = $diff->format("%a"); // We get the number of days between the event and today
             if($diff < 30 && $diff >= 0){
                 array_push($eventsPerDay[$diff], $event);
             }
@@ -116,6 +116,60 @@ class CalendarController extends Controller
             'message' => "Calendar fetched successfully!",
             'calendar' => $calendar,
             'events' => $eventsPerDay
+        ], 200);
+    }
+
+    public function userFetchPerWeek(Request $request, $id_calendar)
+    {
+        $calendar = Calendar::where('id_calendar', $id_calendar)->first();
+        if($calendar == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not exist !",
+            ], 401);
+        }
+
+        $index = Calendar_belong_to::where('id_calendar', $id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+        if($index == null){
+            return response()->json([
+                'status' => false,
+                'message' => "This calendar does not belong to you !",
+            ], 401);
+        }
+
+        $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
+
+        //We now have to create an array for each of the following 5 weeks, then we have to navigate through the events, and put events of the same week in the same array
+
+        $number_of_weeks = 5;
+        $eventsPerWeek = array();
+        for($i = 0; $i < $number_of_weeks; $i++){
+            $eventsPerWeek[$i] = array();
+        }
+
+        //Now if an event is before this week or after the 5th from now on, it is discarded
+        //If it is this week, it is added to the first array of $eventsPerWeek , and so on...
+        //We have to preperly take into account the fact that the week starts on monday, and not Now()
+        //We therefore have to substract the number of days since monday to the current date
+
+        $today = date_create(date("Y-m-d")); // We get the current date
+        $day = date_format($today, "N"); // We get the day of the week (1 to 7) (1 being monday)
+        $base = date_sub($today, date_interval_create_from_date_string($day-1 . " days")); // We get the number of days since monday, and substract it to the current date
+
+        foreach($events as $event){
+            $date = date_create($event->start_date); // We get the date of the event
+            $diff = date_diff($date, $base); // We get difference between the event and the base date (Monday of this week)
+            $diff = $diff->format("%a"); // We get the number of days between the event and the base date (Monday of this week)
+            if($diff < (7 * $number_of_weeks) && $diff >= 0){
+                array_push($eventsPerWeek[floor($diff/7)], $event);
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendar fetched successfully!",
+            'calendar' => $calendar,
+            'events' => $eventsPerWeek
         ], 200);
     }
 
