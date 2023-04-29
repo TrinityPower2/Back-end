@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\ToDoListController;
 use App\Http\Controllers\Api\TimePreferencesController;
 use App\Http\Controllers\Api\IcsImportController;
+use App\Http\Controllers\Api\AlgorithmController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -77,3 +78,4 @@ Route::get('ping', function () {
 });
 
 Route::post('icsimport', [IcsImportController::class, 'parseIcs']) -> middleware('auth:sanctum');
+Route::post('algorithm', [AlgorithmController::class, 'runAlgorithm']) -> middleware('auth:sanctum');
