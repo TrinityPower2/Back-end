@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\Task;
+use App\Models\AttachedTask;
+use App\Models\Event;
 use App\Models\To_do_list;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTaskRequest;
@@ -96,7 +98,8 @@ class TaskController extends Controller
      * Fetch all tasks  belonging to the user
      */
 
-    public function userFetchAll(Request $request){
+    public function userFetchAll(Request $request)
+    {
         $tasks = DB::table('tasks')->join('to_do_lists', 'tasks.id_todo', '=', 'to_do_lists.id_todo')->where('to_do_lists.id_users', '=', auth('sanctum')->user()->id)->get();
         return response()->json([
             'status' => true,
@@ -158,5 +161,77 @@ class TaskController extends Controller
         ], 200);
     }
 
+    /**
+     * Convert a task to an attached task
+     */
+
+    public function userAttachToEvent(Request $request, $id_task){
+        $task = $this->taskCheck4xx($request, $id_task);
+        // If $task is a response, then it's an error and we return it
+        if (get_class($task) == "Illuminate\Http\JsonResponse") {
+            return $task;
+        }
+
+        $event = DB::table('events')->where('id_event', '=', $request->id_event)->first();
+        if($event == null){
+            return response()->json([
+                'status' => false,
+                'message' => "Event not found!",
+            ], 404);
+        }
+
+        $attached_task = AttachedTask::create(
+            [
+                'name_task'=>$task->name_task,
+                'description'=>$task->description,
+                'id_todo'=>$event->id_event,
+                'priority_level'=>$task->priority_level,
+                'is_done'=> false,
+            ]);
+
+        $task->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Task converted successfully!",
+            'attached_task' => $attached_task
+        ], 200);
+    }
+
+    /**
+     * Convert a task to an event
+     */
+    public function userConvertToEvent(Request $request, $id_task){
+        $task = $this->taskCheck4xx($request, $id_task);
+        // If $task is a response, then it's an error and we return it
+        if (get_class($task) == "Illuminate\Http\JsonResponse") {
+            return $task;
+        }
+
+        $calendar = DB::table('calendars')->where('id_calendar', '=', $request->id_calendar)->first();
+
+        $event = Event::create(
+            [
+                'name_event'=>$task->name_task,
+                'description'=>$task->description,
+                'start_date'=> Carbon::create($request->start_date),
+                'length'=> $request->length,
+                'movable'=> false,
+                'id_calendar'=>$request->id_calendar,
+                'priority_level'=>$task->priority_level,
+                'to_repeat'=> false,
+                'color'=> $calendar->color,
+            ]);
+
+        $task->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Task converted successfully!",
+            'event' => $event
+        ], 200);
+    }
 
 }
+
+

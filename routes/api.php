@@ -79,3 +79,6 @@ Route::get('ping', function () {
 
 Route::post('icsimport', [IcsImportController::class, 'parseIcs']) -> middleware('auth:sanctum');
 Route::post('algorithm', [AlgorithmController::class, 'runAlgorithm']) -> middleware('auth:sanctum');
+
+Route::post('attachTaskToEvent/{id_task}', [TaskController::class, 'userAttachToEvent']) -> middleware('auth:sanctum');
+Route::post('convertTaskToEvent/{id_task}', [TaskController::class, 'userConvertToEvent']) -> middleware('auth:sanctum');
