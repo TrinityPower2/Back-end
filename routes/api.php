@@ -82,3 +82,5 @@ Route::post('algorithm', [AlgorithmController::class, 'runAlgorithm']) -> middle
 
 Route::post('attachTaskToEvent/{id_task}', [TaskController::class, 'userAttachToEvent']) -> middleware('auth:sanctum');
 Route::post('convertTaskToEvent/{id_task}', [TaskController::class, 'userConvertToEvent']) -> middleware('auth:sanctum');
+
+Route::get('calendar/day/all', [CalendarController::class, 'userFetchDay']) -> middleware('auth:sanctum');

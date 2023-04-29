@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 
+use Carbon\Carbon;
+
 class CalendarController extends Controller
 {
 
@@ -164,6 +166,33 @@ class CalendarController extends Controller
             'events' => $eventsPerWeek
         ], 200);
     }
+
+    # Function to get all event of a specific day, with events of different calendars separated in different arrays
+    public function userFetchDay(Request $request)
+    {
+        $calendars = DB::table('calendars')
+            ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+            ->where('calendar_belong_tos.id_users', auth('sanctum')->user()->id)
+            ->get();
+
+
+        $events = array();
+        foreach($calendars as $calendar){
+            $events[$calendar->id_calendar] = array();
+        }
+        foreach($calendars as $calendar){
+            # We fetch only the events which start on the day we want
+            $events[$calendar->id_calendar] = DB::table('events')->where('id_calendar', $calendar->id_calendar)->whereDate('start_date', Carbon::create($request->date)->toDateString())->get();
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Calendar fetched successfully!",
+            'calendars' => $calendars,
+            'events' => $events
+        ], 200);
+    }
+
 
     /**
      * Fetch all events of every calendars belonging to the user
