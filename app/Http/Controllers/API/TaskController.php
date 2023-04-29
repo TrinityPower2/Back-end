@@ -60,7 +60,6 @@ class TaskController extends Controller
         $task = Task::create(
             [
                 'name_task'=>$request->name_task,
-                'date_day'=> new Carbon($request->date_day),
                 'description'=>$request->description,
                 'id_todo'=>$request->id_todo,
                 'priority_level'=>$request->priority_level,
@@ -121,8 +120,6 @@ class TaskController extends Controller
 
         if($request->name_task != null)
             $task->name_task = $request->name_task;
-        if($request->date_day != null)
-            $task->date_day = new Carbon($request->date_day);
         if($request->description != null)
             $task->description = $request->description;
         if($request->id_todo != null)

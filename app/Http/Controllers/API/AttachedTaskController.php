@@ -48,17 +48,12 @@ class AttachedTaskController extends Controller
             ], 401);
         }
 
-        //Get the event
-
-        $event = DB::table('events')->where('id_event', '=', $request->id_event)->first();
-
         //Get the attached list of this event
         $attachedlist = DB::table('attached_to_do_lists')->where('id_event', '=', $request->id_event)->first();
 
         $task = AttachedTask::create(
             [
                 'name_task'=>$request->name_task,
-                'date_day'=> $event->start_date, // It is linked to the event, the event has a date, so the task has the same date
                 'description'=>$request->description,
                 'id_todo'=>$attachedlist->id_att_todo,
                 'priority_level'=>$request->priority_level,

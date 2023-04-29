@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id('id_task');
             $table->string('name_task', 50);
-            $table->date('date_day');
             $table->string('description', 200);
             $table->foreignId('id_todo')->references('id_todo')->on('to_do_lists');
             $table->integer('priority_level');
