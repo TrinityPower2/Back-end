@@ -58,6 +58,14 @@ class TaskController extends Controller
             ], 401);
         }
 
+        # we check that the name has not been used in another task of the list
+        $name_check = Task::where('name_task', $request->name_task)->where('id_todo', $request->id_todo)->first();
+        if ($name_check != null) {
+            return response()->json([
+                'status' => false,
+                'message' => "This name is already used in this list!",
+            ], 409);
+        }
 
         $task = Task::create(
             [
@@ -84,6 +92,15 @@ class TaskController extends Controller
                 'status' => false,
                 'message' => "List not found!",
             ], 404);
+        }
+
+        #we check that the name has not been used in another task of the list
+        $name_check = Task::where('name_task', $request->name_task)->where('id_todo', $list->id_todo)->first();
+        if ($name_check != null) {
+            return response()->json([
+                'status' => false,
+                'message' => "This name is already used in this list!",
+            ], 409);
         }
 
         $task = Task::create(
@@ -187,6 +204,34 @@ class TaskController extends Controller
             'message' => "Task Deleted successfully!",
         ], 200);
     }
+
+    # Delete a task from the name of the to_do_list and the name of the task
+    public function userDeleteFromNames(Request $request, $name_task, $name_todo)
+    {
+        $list = To_do_list::where('name_todo', $name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($list == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+
+        $task = Task::where('name_task', $name_task)->where('id_todo', $list->id_todo)->first();
+        if ($task == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Task not found!",
+            ], 404);
+        }
+
+        $task->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Task Deleted successfully!",
+        ], 200);
+    }
+
 
     /**
      * Convert a task to an attached task

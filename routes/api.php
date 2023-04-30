@@ -49,6 +49,7 @@ Route::get('tasks/{id_task}', [TaskController::class, 'userFetch']) -> middlewar
 Route::get('tasks', [TaskController::class, 'userFetchAll']) -> middleware('auth:sanctum');
 Route::patch('tasks/{id_task}', [TaskController::class, 'userEdit']) -> middleware('auth:sanctum');
 Route::delete('tasks/{id_task}', [TaskController::class, 'userDelete']) -> middleware('auth:sanctum');
+Route::delete('tasks/fromname/{name_task}/{name_todo}', [TaskController::class, 'userDeleteFromNames']) -> middleware('auth:sanctum');
 
 Route::post('todolist', [ToDoListController::class, 'userCreate']) -> middleware('auth:sanctum');
 Route::get('todolist/{id_todo}', [ToDoListController::class, 'userFetch']) -> middleware('auth:sanctum');
