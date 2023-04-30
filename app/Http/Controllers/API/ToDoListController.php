@@ -37,6 +37,16 @@ class ToDoListController extends Controller
 
     public function userCreate(Request $request)
     {
+
+        # We check that the names has not been used in another todolist of the user
+        $list = To_do_list::where('name_todo', $request->name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($list != null) {
+            return response()->json([
+                'status' => false,
+                'message' => "This name is already used in another todolist of yours!",
+            ], 409);
+        }
+
         $event = To_do_list::create(
             [
                 'name_todo'=>$request->name_todo,
