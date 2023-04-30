@@ -146,6 +146,28 @@ class ToDoListController extends Controller
         ], 200);
     }
 
+    # Delete a todolist by name
+    public function userDeleteFromName(Request $request, $name_todo)
+    {
+        $todo = To_do_list::where('name_todo', $name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($todo == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+
+        # We delete all the tasks of the todolist
+        DB::table('tasks')->where('id_todo', $todo->id_todo)->delete();
+
+        $todo->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist deleted successfully!",
+        ], 200);
+    }
+
     # Update all the priorties of the tasks of a todolist selecting the todolist by name
     public function userEditPriorityFromName(Request $request, $name_todo)
     {
