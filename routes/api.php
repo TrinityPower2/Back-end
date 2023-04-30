@@ -44,6 +44,7 @@ Route::delete('calendar/{id_calendar}', [CalendarController::class, 'userDelete'
 
 
 Route::post('tasks', [TaskController::class, 'userCreate']) -> middleware('auth:sanctum');
+Route::post('tasks/fromname', [TaskController::class, 'userCreateFromName']) -> middleware('auth:sanctum');
 Route::get('tasks/{id_task}', [TaskController::class, 'userFetch']) -> middleware('auth:sanctum');
 Route::get('tasks', [TaskController::class, 'userFetchAll']) -> middleware('auth:sanctum');
 Route::patch('tasks/{id_task}', [TaskController::class, 'userEdit']) -> middleware('auth:sanctum');

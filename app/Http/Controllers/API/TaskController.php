@@ -75,6 +75,33 @@ class TaskController extends Controller
         ], 200);
     }
 
+    # Create a task from the name of the to_do_list
+    public function userCreateFromName(Request $request)
+    {
+        $list = To_do_list::where('name_todo', $request->name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($list == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+
+        $task = Task::create(
+            [
+                'name_task'=>$request->name_task,
+                'description'=>$request->description,
+                'id_todo'=>$list->id_todo,
+                'priority_level'=>$request->priority_level,
+                'is_done'=> false
+            ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => "Task Created successfully!",
+            'list' => $task
+        ], 200);
+    }
+
     /**
      * Fetch a belonging to the user
      */
