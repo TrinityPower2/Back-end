@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\To_do_list;
+use App\Models\Task;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -145,4 +146,27 @@ class ToDoListController extends Controller
         ], 200);
     }
 
+    # Update all the priorties of the tasks of a todolist selecting the todolist by name
+    public function userEditPriorityFromName(Request $request, $name_todo)
+    {
+        $todo = To_do_list::where('name_todo', $name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($todo == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+
+        $tasks = Task::where('id_todo', $todo->id_todo)->get();
+
+        foreach ($tasks as $task) {
+            $task->priority_level = $request->priority_level;
+            $task->save();
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Priority updated successfully!",
+        ], 200);
+    }
 }
