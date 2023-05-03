@@ -67,13 +67,19 @@ class TaskController extends Controller
             ], 409);
         }
 
+        if($request->is_done == null){
+            $is_done = false;
+        } else {
+            $is_done = $request->is_done;
+        }
+
         $task = Task::create(
             [
                 'name_task'=>$request->name_task,
                 'description'=>$request->description,
                 'id_todo'=>$request->id_todo,
                 'priority_level'=>$request->priority_level,
-                'is_done'=> false
+                'is_done'=> $is_done,
             ]);
 
         return response()->json([
@@ -103,13 +109,19 @@ class TaskController extends Controller
             ], 409);
         }
 
+        if($request->is_done == null){
+            $is_done = false;
+        } else {
+            $is_done = $request->is_done;
+        }
+
         $task = Task::create(
             [
                 'name_task'=>$request->name_task,
                 'description'=>$request->description,
                 'id_todo'=>$list->id_todo,
                 'priority_level'=>$request->priority_level,
-                'is_done'=> false
+                'is_done'=> $is_done,
             ]);
 
         return response()->json([
