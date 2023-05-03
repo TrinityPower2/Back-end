@@ -123,6 +123,49 @@ class ToDoListController extends Controller
         ], 200);
     }
 
+    # Edit a todolist by name, and replace the linked tasks by the new ones sent in the request in a json array
+    public function userMassEdit(Request $request, $name_todo)
+    {
+        $list = To_do_list::where('name_todo', $name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($list == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+
+        if($request->name_todo != null)
+            $list->name_todo = $request->name_todo;
+        
+        $list->save();
+
+        # We delete all the tasks of the todolist
+        DB::table('tasks')->where('id_todo', $list->id_todo)->delete();
+
+        # We add the new tasks
+        foreach($request->task as $task){
+            $newTask = Task::create(
+                [
+                    'id_todo'=>$list->id_todo,
+                    'name_task'=>$task['name_task'],
+                    'description'=>"",
+                    'is_done'=>$task['is_done'],
+                    'priority_level'=>$task['priority_level'],
+                ]);
+        }
+
+        # get the new list of tasks
+
+        $tasks = DB::table('tasks')->where('id_todo', $list->id_todo)->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist updated successfully!",
+            'list' => $list,
+            'tasks' => $tasks
+        ], 200);
+    }
+
     /**
      * Delete a todolist belonging to the user
      */

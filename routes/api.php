@@ -55,6 +55,7 @@ Route::post('todolist', [ToDoListController::class, 'userCreate']) -> middleware
 Route::get('todolist/{id_todo}', [ToDoListController::class, 'userFetch']) -> middleware('auth:sanctum');
 Route::get('todolist/', [ToDoListController::class, 'userFetchAll']) -> middleware('auth:sanctum');
 Route::patch('todolist/{id_todo}', [ToDoListController::class, 'userEdit']) -> middleware('auth:sanctum');
+Route::patch('todolist/mass/{id_todo}', [ToDoListController::class, 'userMassEdit']) -> middleware('auth:sanctum');
 Route::patch('todolist/priority/fromname/{name_todo}', [ToDoListController::class, 'userEditPriorityfromName']) -> middleware('auth:sanctum');
 Route::delete('todolist/{id_todo}', [ToDoListController::class, 'userDelete']) -> middleware('auth:sanctum');
 Route::delete('todolist/fromname/{name_todo}', [ToDoListController::class, 'userDeleteFromName']) -> middleware('auth:sanctum');
