@@ -4,11 +4,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\To_do_list;
+use App\Models\AttachedToDoList;
 use App\Models\Task;
+use App\Models\AttachedTask;
+use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+
+use Carbon\Carbon;
 
 class ToDoListController extends Controller
 {
@@ -233,5 +238,77 @@ class ToDoListController extends Controller
             'status' => true,
             'message' => "Priority updated successfully!",
         ], 200);
+    }
+
+    # convert a todolist to an event, add it to the calendar and delete the todolist
+    # add the todolist's tasks to the event's tasks
+
+    public function userConvertToEvent(Request $request, $name_todo)
+    {
+        $list = To_do_list::where('name_todo', $name_todo)->where('id_users', auth('sanctum')->user()->id)->first();
+        if ($list == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "List not found!",
+            ], 404);
+        }
+
+        $calendar = DB::table('calendars')->where('id_calendar', $request->id_calendar)->first();
+
+        $event = Event::create(
+            [
+                'name_event'=>$list->name_todo,
+                'description'=> "Created from the todolist ".$list->name_todo,
+                'start_date'=>Carbon::create($request->start_date),
+                'length'=>$request->length,
+                'movable'=>false,
+                'id_calendar'=>$request->id_calendar,
+                'priority_level'=>$request->priority_level,
+                'to_repeat'=>false,
+                'color'=>$calendar->color
+            ]);
+
+        # We create the attached list of the event
+
+        $attachedList = AttachedToDoList::create(
+            [
+                'id_event'=>$event->id_event,
+                'name_todo'=>$list->name_todo." Todo list",
+            ]);
+        
+        # We add the tasks of the todolist to the attached list
+
+        $tasks = DB::table('tasks')->where('id_todo', $list->id_todo)->get();
+
+        foreach($tasks as $task){
+            $newTask = AttachedTask::create(
+                [
+                    'name_task'=>$task->name_task,
+                    'description'=>$task->description,
+                    'id_todo'=>$attachedList->id_att_todo,
+                    'priority_level'=>$task->priority_level,
+                    'is_done'=> $task->is_done,
+                ]);
+        }
+
+        # We refetch the attached tasks
+
+        $attachedTasks = DB::table('attached_tasks')->where('id_todo', $attachedList->id_att_todo)->get();
+
+        # We delete the tasks
+
+        DB::table('tasks')->where('id_todo', $list->id_todo)->delete();
+
+        # We delete the todolist
+
+        $list->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Todolist converted to event successfully!",
+            'event' => $event,
+            'attachedTasks' => $attachedTasks
+        ], 200);
+
     }
 }
