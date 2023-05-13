@@ -149,7 +149,7 @@ class AttachedTaskController extends Controller
             $task->description = $request->description;
         if($request->priority_level != null)
             $task->priority_level = $request->priority_level;
-        if($request->is_done != null)
+        if($request->is_done !== null)
             $task->is_done = $request->is_done;
 
         $task->save();
