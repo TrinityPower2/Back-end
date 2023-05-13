@@ -177,15 +177,25 @@ class TaskController extends Controller
             return $task;
         }
 
+        echo($request->is_done);
+
         if($request->name_task != null)
             $task->name_task = $request->name_task;
         if($request->description != null)
             $task->description = $request->description;
-        if($request->id_todo != null)
+        if($request->id_todo != null){
+            $verification = DB::table('to_do_lists')->where('id_todo', '=', $request->id_todo)->where('id_users', '=', auth('sanctum')->user()->id)->first();
+            if($verification == null){
+                return response()->json([
+                    'status' => false,
+                    'message' => "You don't have access to this list!",
+                ], 401);
+            }
             $task->id_todo = $request->id_todo;
+        }
         if($request->priority_level != null)
             $task->priority_level = $request->priority_level;
-        if($request->is_done != null)
+        if($request->is_done !== null)
             $task->is_done = $request->is_done;
 
         $task->save();
