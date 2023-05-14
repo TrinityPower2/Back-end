@@ -161,6 +161,51 @@ class AuthController extends Controller
         }
     }
 
+    # function to edit user profile (name, email)
+    public function userEditProfile(Request $request)
+    {
+        try {
+
+            $user = User::where('id', auth('sanctum')->user()->id)->first();
+
+            if($request->name != null){
+                $user->name = $request->name;
+            }
+            if($request->email != null){
+
+                # check if email is valid
+                $validateEmail = Validator::make($request->all(),
+                [
+                    'email' => 'required|email|unique:users,email',
+                ]);
+
+                if($validateEmail->fails()){
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'validation error',
+                        'errors' => $validateEmail->errors()
+                    ], 401);
+                }
+
+                $user->email = $request->email;
+            }
+
+            $user->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User Profile Updated Successfully',
+                'user' => $user
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function logoutUser(Request $request)
     {
         try {

@@ -72,6 +72,7 @@ Route::post('auth/login', [AuthController::class, 'loginUser']);
 Route::get('auth/logout', [AuthController::class, 'logoutUser']);
 
 Route::post('auth/recovery', [AuthController::class, 'recoveryUser']);
+Route::patch('auth/profile', [AuthController::class, 'userEditProfile']) -> middleware('auth:sanctum');
 Route::patch('auth/password', [AuthController::class, 'editUserPassword']) -> middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
