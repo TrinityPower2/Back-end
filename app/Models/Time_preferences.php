@@ -17,6 +17,7 @@ class Time_preferences extends Model
         'name_timepref',
         'start_time',
         'length',
-        'id_users'
+        'id_users',
+        'miscellaneous'
     ];
 }

@@ -38,7 +38,8 @@ class TimePreferencesController extends Controller
                 'name_timepref' => $request->name_timepref,
                 'start_time' => new Carbon($request->start_time),
                 'length' => $request->length,
-                'id_users' => auth('sanctum')->user()->id
+                'id_users' => auth('sanctum')->user()->id,
+                'miscellaneous' => $request->miscellaneous
             ]);
 
         return response()->json([
@@ -106,6 +107,8 @@ class TimePreferencesController extends Controller
             $preference->start_time = new Carbon($request->start_time);
         if($request->length != null)
             $preference->length = $request->length;
+        if($request->miscellaneous != null)
+            $preference->miscellaneous = $request->miscellaneous;
 
         $preference->save();
 

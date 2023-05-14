@@ -18,6 +18,49 @@ use Carbon\Carbon;
 class AlgorithmController extends Controller
 {
 
+    # function that receives the request from the frontend
+    # It will create the event detailed in the request then call the algorithm
+
+    public function interfaceAlgorithm(Request $request)
+    {
+
+            #We check that the calendar exists and belongs to the user
+            $calendar = Calendar_belong_to::where('id_calendar', $request->id_calendar)->where('id_users', auth('sanctum')->user()->id)->first();
+            if ($calendar == null) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Calendar not found!",
+                ], 404);
+            }
+
+            # We add the events to the database
+            foreach($request->events as $temp_event){
+                $event = Event::create(
+                    [
+                        'id_calendar' => $calendar->id_calendar,
+                        'name_event' => $temp_event["name"],
+                        'description' => $temp_event["description"],
+                        'start_date' => null,
+                        'length' => $temp_event["length"], //TO CHANGE, SOMETIMES CAN BE NULL
+                        'movable' => true,
+                        'priority_level' => 10,
+                        'to_repeat' => 0,
+                        'color' => $calendar->color,
+                    ]);
+
+                //Create the attached to do list
+                $todolist = AttachedToDoList::create(
+                    [
+                        'id_event' => $event->id_event,
+                        'name_todo' => $event->name_event.' To Do List',
+                    ]);
+            }
+
+            # We call the algorithm
+            return $this->runAlgorithm($request);
+    }
+
+
     public function runAlgorithm(Request $request)
     {
 
@@ -212,7 +255,7 @@ class AlgorithmController extends Controller
             $temp_event = Event::find($event->id_event);
             $temp_event->start_date = $event->start_date;
             $temp_event->length = $event->length;
-            # $temp_event->movable = false; # We don't want to move the event again ?
+            $temp_event->movable = false;
             $temp_event->save();
         }
 

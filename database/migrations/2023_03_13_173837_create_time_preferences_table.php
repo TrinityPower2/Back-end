@@ -17,6 +17,7 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->integer('length');
             $table->foreignId('id_users')->references('id')->on('Users');
+            $table->string('miscellaneous')->nullable();
         });
     }
 
