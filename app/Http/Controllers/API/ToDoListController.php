@@ -141,7 +141,7 @@ class ToDoListController extends Controller
 
         if($request->name_todo != null)
             $list->name_todo = $request->name_todo;
-        
+
         $list->save();
 
         # We delete all the tasks of the todolist
@@ -253,7 +253,21 @@ class ToDoListController extends Controller
             ], 404);
         }
 
+        # We verify that the todolist doesn't already have a buddy
+        if ($list->id_buddy != null) {
+            return response()->json([
+                'status' => false,
+                'message' => "This todolist already has a buddy!",
+            ], 400);
+        }
+
         $calendar = DB::table('calendars')->where('id_calendar', $request->id_calendar)->first();
+        if ($calendar == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "Calendar not found!",
+            ], 404);
+        }
 
         $event = Event::create(
             [
@@ -274,8 +288,9 @@ class ToDoListController extends Controller
             [
                 'id_event'=>$event->id_event,
                 'name_todo'=>$list->name_todo." Todo list",
+                'id_buddy'=>$list->id_todo
             ]);
-        
+
         # We add the tasks of the todolist to the attached list
 
         $tasks = DB::table('tasks')->where('id_todo', $list->id_todo)->get();
@@ -295,17 +310,21 @@ class ToDoListController extends Controller
 
         $attachedTasks = DB::table('attached_tasks')->where('id_todo', $attachedList->id_att_todo)->get();
 
-        # We delete the tasks
+        # We set the id_buddy of the original todolist to the id of the attached list
 
-        DB::table('tasks')->where('id_todo', $list->id_todo)->delete();
+        $list->id_buddy = $attachedList->id_att_todo;
+        $list->save();
 
-        # We delete the todolist
+        # We delete the tasks (DISABLED)
+        # DB::table('tasks')->where('id_todo', $list->id_todo)->delete();
 
-        $list->delete();
+        # We delete the todolist (DISABLED)
+        #$list->delete();
 
         return response()->json([
             'status' => true,
             'message' => "Todolist converted to event successfully!",
+            'todo' => $list,
             'event' => $event,
             'attachedTasks' => $attachedTasks
         ], 200);

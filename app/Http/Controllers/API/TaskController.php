@@ -266,6 +266,13 @@ class TaskController extends Controller
             return $task;
         }
 
+        if ($task->id_buddy != null) {
+            return response()->json([
+                'status' => false,
+                'message' => "This task already has a buddy!"
+            ], 401);
+        }
+
         $event = DB::table('events')->where('id_event', '=', $request->id_event)->first();
         if($event == null){
             return response()->json([
@@ -281,14 +288,20 @@ class TaskController extends Controller
                 'id_todo'=>$event->id_event,
                 'priority_level'=>$task->priority_level,
                 'is_done'=> false,
+                'id_buddy'=>$task->id_task
             ]);
 
-        $task->delete();
+        #$task->delete();
+
+        $task->id_buddy = $attached_task->id_att_task;
+        $task->save();
+
 
         return response()->json([
             'status' => true,
             'message' => "Task converted successfully!",
-            'attached_task' => $attached_task
+            'attached_task' => $attached_task,
+            'task' => $task
         ], 200);
     }
 
