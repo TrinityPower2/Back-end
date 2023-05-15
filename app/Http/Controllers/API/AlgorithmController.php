@@ -43,9 +43,9 @@ class AlgorithmController extends Controller
                         'start_date' => null,
                         'length' => $temp_event["length"], //TO CHANGE, SOMETIMES CAN BE NULL
                         'movable' => true,
-                        'priority_level' => 10,
+                        'priority_level' => $temp_event["priority_level"],
                         'to_repeat' => 0,
-                        'color' => $calendar->color,
+                        'color' => $temp_event["color"],
                     ]);
 
                 //Create the attached to do list
@@ -54,6 +54,18 @@ class AlgorithmController extends Controller
                         'id_event' => $event->id_event,
                         'name_todo' => $event->name_event.' To Do List',
                     ]);
+
+                //Create the attached tasks
+                foreach($temp_event["tasks"] as $temp_task){
+                    $task = AttachedTask::create(
+                        [
+                            'id_todo' => $todolist->id_att_todo,
+                            'name_task' => $temp_task["name"],
+                            'description' => $temp_task["description"],
+                            'priority_level' => $temp_task["priority_level"],
+                            'is_done' => $temp_task["is_done"],
+                        ]);
+                }
             }
 
             # We call the algorithm
