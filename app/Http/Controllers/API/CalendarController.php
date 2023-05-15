@@ -42,10 +42,17 @@ class CalendarController extends Controller
 
     public function userCreate(Request $request)
     {
+
+        if($request->to_notify === null){
+            $to_notify = false;
+        }else{
+            $to_notify = $request->to_notify;
+        }
+
         $event = Calendar::create(
             [
                 'name_calendar'=>$request->name_calendar,
-                'to_notify'=>false,
+                'to_notify'=>$to_notify,
                 'color'=>$request->color,
             ]);
 
