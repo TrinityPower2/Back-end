@@ -82,10 +82,31 @@ class TaskController extends Controller
                 'is_done'=> $is_done,
             ]);
 
+        # We check if the todolist has an id_buddy
+        $list = To_do_list::where('id_todo', $request->id_todo)->first();
+        if($list->id_buddy != null){
+            # If there is a buddy, we need to create an attached task in the buddy's todolist
+            $attached_task = AttachedTask::create(
+                [
+                    'name_task'=>$request->name_task,
+                    'description'=>$request->description,
+                    'id_todo'=>$list->id_buddy,
+                    'priority_level'=>$request->priority_level,
+                    'is_done'=> $is_done,
+                    'id_buddy'=>$task->id_task,
+                ]);
+
+            # We need to set the id_buddy of the task to the id of the attached task
+            $task->id_buddy = $attached_task->id_att_task;
+            $task->save();
+        }
+
+
         return response()->json([
             'status' => true,
             'message' => "Task Created successfully!",
-            'list' => $task
+            'task' => $task,
+            'attached_task' => $attached_task
         ], 200);
     }
 
@@ -124,10 +145,29 @@ class TaskController extends Controller
                 'is_done'=> $is_done,
             ]);
 
+        # We check if the todolist has an id_buddy
+        if($list->id_buddy != null){
+            # If there is a buddy, we need to create an attached task in the buddy's todolist
+            $attached_task = AttachedTask::create(
+                [
+                    'name_task'=>$request->name_task,
+                    'description'=>$request->description,
+                    'id_todo'=>$list->id_buddy,
+                    'priority_level'=>$request->priority_level,
+                    'is_done'=> $is_done,
+                    'id_buddy'=>$task->id_task,
+                ]);
+
+            # We need to set the id_buddy of the task to the id of the attached task
+            $task->id_buddy = $attached_task->id_task;
+            $task->save();
+        }
+
         return response()->json([
             'status' => true,
             'message' => "Task Created successfully!",
-            'list' => $task
+            'task' => $task,
+            'attached_task' => $attached_task
         ], 200);
     }
 
@@ -177,7 +217,24 @@ class TaskController extends Controller
             return $task;
         }
 
-        echo($request->is_done);
+        $attached_task = null;
+
+        # We check if the task has an id_buddy
+        if($task->id_buddy != null){
+            # If there is a buddy, we need to edit the attached task in the buddy's todolist
+            $attached_task = AttachedTask::where('id_att_task', $task->id_buddy)->first();
+
+            if($request->name_task != null)
+                $attached_task->name_task = $request->name_task;
+            if($request->description != null)
+                $attached_task->description = $request->description;
+            if($request->priority_level != null)
+                $attached_task->priority_level = $request->priority_level;
+            if($request->is_done !== null)
+                $attached_task->is_done = $request->is_done;
+
+            $attached_task->save();
+        }
 
         if($request->name_task != null)
             $task->name_task = $request->name_task;
@@ -203,7 +260,8 @@ class TaskController extends Controller
         return response()->json([
             'status' => true,
             'message' => "Task Edited successfully!",
-            'list' => $task
+            'list' => $task,
+            'attached_task' => $attached_task
         ], 200);
     }
 
@@ -217,6 +275,13 @@ class TaskController extends Controller
         // If $task is a response, then it's an error and we return it
         if (get_class($task) == "Illuminate\Http\JsonResponse") {
             return $task;
+        }
+
+        # We check if the task has an id_buddy
+        if($task->id_buddy != null){
+            # If there is a buddy, we need to delete the attached task in the buddy's todolist
+            $attached_task = AttachedTask::where('id_att_task', $task->id_buddy)->first();
+            $attached_task->delete();
         }
 
         $task->delete();
@@ -246,6 +311,13 @@ class TaskController extends Controller
             ], 404);
         }
 
+        # We check if the task has an id_buddy
+        if($task->id_buddy != null){
+            # If there is a buddy, we need to delete the attached task in the buddy's todolist
+            $attached_task = AttachedTask::where('id_att_task', $task->id_buddy)->first();
+            $attached_task->delete();
+        }
+
         $task->delete();
 
         return response()->json([
@@ -257,6 +329,7 @@ class TaskController extends Controller
 
     /**
      * Convert a task to an attached task
+     * UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED
      */
 
     public function userAttachToEvent(Request $request, $id_task){
@@ -307,6 +380,7 @@ class TaskController extends Controller
 
     /**
      * Convert a task to an event
+     * UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED UNUSED
      */
     public function userConvertToEvent(Request $request, $id_task){
         $task = $this->taskCheck4xx($request, $id_task);
