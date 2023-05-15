@@ -18,6 +18,7 @@ class Task extends Model
         'description',
         'id_todo',
         'priority_level',
-        'is_done'
+        'is_done',
+        'id_buddy'
     ];
 }

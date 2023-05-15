@@ -15,6 +15,7 @@ class AttachedToDoList extends Model
 
     protected $fillable = [
         'name_todo',
-        'id_event'
+        'id_event',
+        'id_buddy'
     ];
 }
