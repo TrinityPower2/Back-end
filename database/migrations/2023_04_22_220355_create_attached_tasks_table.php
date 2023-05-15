@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('id_todo')->references('id_att_todo')->on('Attached_to_do_lists');
             $table->integer('priority_level');
             $table->boolean('is_done');
+            $table->integer('id_buddy')->nullable();
         });
     }
 

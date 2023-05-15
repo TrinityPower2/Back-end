@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('id_todo');
             $table->string('name_todo', 50);
             $table->foreignId('id_users')->references('id')->on('Users');
+            $table->integer('id_buddy')->nullable();
         });
     }
 

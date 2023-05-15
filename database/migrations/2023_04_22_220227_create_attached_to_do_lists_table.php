@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('id_att_todo');
             $table->string('name_todo', 100);
             $table->foreignId('id_event')->references('id_event')->on('Events');
+            $table->integer('id_buddy')->nullable();
         });
     }
 
