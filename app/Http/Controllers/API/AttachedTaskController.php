@@ -61,6 +61,8 @@ class AttachedTaskController extends Controller
                 'is_done'=> false
             ]);
 
+        $task = null;
+
         # We check if the attached_todo has an id_buddy
         if($attachedlist->id_buddy != null){
             # We create a new task in the buddy todolist
