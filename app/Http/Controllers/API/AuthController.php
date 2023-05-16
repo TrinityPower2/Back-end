@@ -171,7 +171,7 @@ class AuthController extends Controller
             if($request->name != null){
                 $user->name = $request->name;
             }
-            if($request->email != null){
+            if($request->email != null && $request->email != $user->email){
 
                 # check if email is valid
                 $validateEmail = Validator::make($request->all(),
