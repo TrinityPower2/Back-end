@@ -306,8 +306,9 @@ class ToDoListController extends Controller
                     'id_buddy'=>$task->id_task
                 ]);
 
-            $task->id_buddy = $newTask->id_att_task;
-            $task->save();
+            $temp_task = Task::find($task->id_task);
+            $temp_task->id_buddy = $newTask->id_att_task;
+            $temp_task->save();
 
         }
 
