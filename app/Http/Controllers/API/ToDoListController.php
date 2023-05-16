@@ -303,7 +303,12 @@ class ToDoListController extends Controller
                     'id_todo'=>$attachedList->id_att_todo,
                     'priority_level'=>$task->priority_level,
                     'is_done'=> $task->is_done,
+                    'id_buddy'=>$task->id_task
                 ]);
+
+            $task->id_buddy = $newTask->id_att_task;
+            $task->save();
+
         }
 
         # We refetch the attached tasks
