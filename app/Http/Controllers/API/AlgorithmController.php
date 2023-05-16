@@ -358,8 +358,6 @@ class AlgorithmController extends Controller
         ->get()
         ->toArray();
 
-        var_dump($events[0]);
-
         # We create a list copy of the events;
         $events_copy = $events;
 
