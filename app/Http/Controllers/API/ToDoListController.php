@@ -186,6 +186,19 @@ class ToDoListController extends Controller
         # We delete all the tasks of the todolist
         DB::table('tasks')->where('id_todo', $id_todo)->delete();
 
+        #We check if the todolist has an id_buddy, if so we reset the id_buddy of the buddy attached_task and its attached task to null
+        if($list->id_buddy != null){
+            $attachedList = AttachedToDoList::where('id_att_todo', $list->id_buddy)->first();
+            $attachedList->id_buddy = null;
+            $attachedList->save();
+            $attachedTasks = AttachedTask::where('id_todo', $attachedList->id_att_todo)->get();
+            foreach($attachedTasks as $task){
+                $task->id_buddy = null;
+                $task->save();
+            }
+        }
+
+
         $list->delete();
 
         return response()->json([

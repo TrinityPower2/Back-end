@@ -7,6 +7,8 @@ use App\Models\Calendar_belong_to;
 use App\Models\Event;
 use App\Models\AttachedToDoList;
 use App\Models\AttachedTask;
+use App\Models\Task;
+use App\Models\To_do_list;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -180,14 +182,27 @@ class EventController extends Controller
 
         //Delete the attached tasks
 
-        $todolist = AttachedToDoList::where('id_event', $event->id_event)->first();
-        $tasks = AttachedTask::where('id_todo', $todolist->id_att_todo)->get();
-        foreach($tasks as $task){
+        $att_todolist = AttachedToDoList::where('id_event', $event->id_event)->first();
+        $att_tasks = AttachedTask::where('id_todo', $att_todolist->id_att_todo)->get();
+        foreach($att_tasks as $task){
             $task->delete();
         }
 
+        #We check if the attached to do list has an id_buddy, if so, we reset the id_buddy of the buddy todolist and its tasks to null
+        if($att_todolist->id_buddy != null){
+            $todolist = To_Do_List::where('id_todo', $att_todolist->id_buddy)->first();
+            $todolist->id_buddy = null;
+            $todolist->save();
+
+            $tasks = Task::where('id_todo', $todolist->id_todo)->get();
+            foreach($tasks as $task){
+                $task->id_buddy = null;
+                $task->save();
+            }
+        }
+
         //Delete the attached to do list
-        $todolist->delete();
+        $att_todolist->delete();
 
         $event->delete();
 
