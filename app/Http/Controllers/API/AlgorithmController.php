@@ -35,6 +35,7 @@ class AlgorithmController extends Controller
 
             # We add the events to the database
             foreach($request->events as $temp_event){
+                if(empty($temp_event["start_date"])){
                 $event = Event::create(
                     [
                         'id_calendar' => $calendar->id_calendar,
@@ -47,6 +48,21 @@ class AlgorithmController extends Controller
                         'to_repeat' => 0,
                         'color' => $temp_event["color"],
                     ]);
+                }
+                else{
+                $event = Event::create(
+                    [
+                        'id_calendar' => $calendar->id_calendar,
+                        'name_event' => $temp_event["name"],
+                        'description' => $temp_event["description"],
+                        'start_date' => $temp_event["start_date"],
+                        'length' => $temp_event["length"], //TO CHANGE, SOMETIMES CAN BE NULL
+                        'movable' => false,
+                        'priority_level' => $temp_event["priority_level"],
+                        'to_repeat' => 0,
+                        'color' => $temp_event["color"],
+                    ]);
+                }
 
                 //Create the attached to do list
                 $todolist = AttachedToDoList::create(
