@@ -84,7 +84,7 @@ class IcsImportController extends Controller
                     'id_calendar' => $calendar->id_calendar,
                     'name_event' => $temp_event->summary,
                     'description' => $temp_event->description,
-                    'start_date' => Carbon::parse($temp_event->dtstart),
+                    'start_date' => Carbon::parse($temp_event->dtstart)->addHours(2), //Consider every user lives in the same timezone : Europe/Paris
                     'length' => $temp_event->duration, //TO CHANGE, SOMETIMES CAN BE NULL
                     'movable' => false,
                     'priority_level' => 10, //Is that redundant with movable ? Mayhaps, let's keep it for now
