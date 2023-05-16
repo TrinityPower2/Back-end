@@ -93,7 +93,7 @@ class AlgorithmController extends Controller
     {
 
         // Number of days to planify
-        $N = 8;
+        $N = 7;
 
 
         # We fetch the user's time preferences
@@ -105,13 +105,13 @@ class AlgorithmController extends Controller
         # We set default values for the time preferences sleeptime , lunchtime and dinnertime
         # We are in UTC so remove 2 hours
 
-        $lunchtime_start = Carbon::create("10:00:00");
+        $lunchtime_start = Carbon::create("12:00:00")->setTimezone('Europe/Paris');
         $lunchtime_length = 60;
 
-        $dinnertime_start = Carbon::create("17:30:00");
+        $dinnertime_start = Carbon::create("19:30:00")->setTimezone('Europe/Paris');
         $dinnertime_length = 60;
 
-        $sleeptime_start = Carbon::create("20:00:00");
+        $sleeptime_start = Carbon::create("22:00:00")->setTimezone('Europe/Paris');
         $sleeptime_length = 600;
 
         # We navigate through the time preferences to find the sleeptime, lunchtime and dinnertime
@@ -131,6 +131,30 @@ class AlgorithmController extends Controller
             }
         }
 
+        # We introduce the sleeptime, lunchtime and dinnertime into the $i_events ifor the next $N days
+
+        $today = Carbon::now('Europe/Paris');
+        $temp_lunchtime = Carbon::create($today->year, $today->month, $today->day, $lunchtime_start->hour, $lunchtime_start->minute, $lunchtime_start->second);
+        $temp_dinnertime = Carbon::create($today->year, $today->month, $today->day, $dinnertime_start->hour, $dinnertime_start->minute, $dinnertime_start->second);
+        $temp_sleeptime = Carbon::create($today->year, $today->month, $today->day, $sleeptime_start->hour, $sleeptime_start->minute, $sleeptime_start->second);
+
+        $minimum_start_time = Carbon::now('Europe/Paris');
+
+        if($today->greaterThan($temp_lunchtime)){
+            $minimum_start_time = clone $temp_lunchtime->addMinutes($lunchtime_length);
+        }
+        else if($today->greaterThan($temp_dinnertime)){
+            $minimum_start_time = clone $temp_dinnertime->addMinutes($dinnertime_length);
+        }
+        else if($today->greaterThan($temp_sleeptime)){
+            $minimum_start_time = clone $temp_sleeptime->addMinutes($sleeptime_length);
+        }
+
+        # We check if now is after the minimum_start_time
+        if(Carbon::now('Europe/Paris')->greaterThan($minimum_start_time)){
+            $minimum_start_time = Carbon::now('Europe/Paris');
+        }
+
         # We fetch every event of the user that is not movable
         # We also onlu want the events that are in the following 8 days
         $i_events = DB::table('events')
@@ -138,19 +162,52 @@ class AlgorithmController extends Controller
         ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
         ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
         ->where('events.movable', '=', false)
-        ->where('events.start_date', '>=', Carbon::now())
+        ->where('events.start_date', '>=', $minimum_start_time)
         ->where('events.start_date', '<=', Carbon::now()->addDays($N))
         ->orderBy('events.start_date', 'asc')
         ->get();
 
-        # We introduce the sleeptime, lunchtime and dinnertime into the $i_events ifor the next $N days
 
-        $today = Carbon::now();
-        $temp_lunchtime = Carbon::create($today->year, $today->month, $today->day, $lunchtime_start->hour, $lunchtime_start->minute, $lunchtime_start->second);
-        $temp_dinnertime = Carbon::create($today->year, $today->month, $today->day, $dinnertime_start->hour, $dinnertime_start->minute, $dinnertime_start->second);
-        $temp_sleeptime = Carbon::create($today->year, $today->month, $today->day, $sleeptime_start->hour, $sleeptime_start->minute, $sleeptime_start->second);
+        # We add the lunchtime, dinnertime and sleeptime to the $i_events for today, depending on the current time
 
-        for ($i=0; $i < $N ; $i++) {
+        # We verify that the current time is before the time of lunchtime or we do not add lunchtime for today
+        if($today->lt($temp_lunchtime)){
+            $i_events = $i_events->concat([
+                (object) [
+                    'id_event' => -1,
+                    'id_calendar' => -1,
+                    'name' => 'lunchtime',
+                    'description' => 'lunchtime',
+                    'start_date' => clone $temp_lunchtime,
+                    'length' => $lunchtime_length,
+                    'priority_level' => 0,
+                    'movable' => false,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]
+                ]);
+        }
+
+        # We verify that the current time is before the time of dinnertime or we do not add dinnertime for today
+        if($today->lt($temp_dinnertime)){
+            $i_events = $i_events->concat([
+                (object) [
+                    'id_event' => -1,
+                    'id_calendar' => -1,
+                    'name' => 'dinnertime',
+                    'description' => 'dinnertime',
+                    'start_date' => clone $temp_dinnertime,
+                    'length' => $dinnertime_length,
+                    'priority_level' => 0,
+                    'movable' => false,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]
+                ]);
+        }
+
+        # We verify that the current time is before the time of sleeptime or we do not add sleeptime for today
+        if($today->lt($temp_sleeptime)){
             $i_events = $i_events->concat([
                 (object) [
                     'id_event' => -1,
@@ -163,7 +220,21 @@ class AlgorithmController extends Controller
                     'movable' => false,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
-                ],
+                ]
+                ]);
+        }
+
+
+        # We add the lunchtime, dinnertime and sleeptime to the $i_events for the next $N days
+
+        for ($i=1; $i < $N ; $i++) {
+
+            $temp_lunchtime->addDays(1);
+            $temp_dinnertime->addDays(1);
+            $temp_sleeptime->addDays(1);
+
+            $i_events = $i_events->concat([
+
                 (object) [
                     'id_event' => -1,
                     'id_calendar' => -1,
@@ -187,12 +258,20 @@ class AlgorithmController extends Controller
                     'movable' => false,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
+                ],
+                (object) [
+                    'id_event' => -1,
+                    'id_calendar' => -1,
+                    'name' => 'sleeptime',
+                    'description' => 'sleeptime',
+                    'start_date' => clone $temp_sleeptime,
+                    'length' => $sleeptime_length,
+                    'priority_level' => 0,
+                    'movable' => false,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
                 ]
             ]);
-
-            $temp_lunchtime->addDays(1);
-            $temp_dinnertime->addDays(1);
-            $temp_sleeptime->addDays(1);
 
         }
 
@@ -210,9 +289,22 @@ class AlgorithmController extends Controller
         ->orderBy('events.priority_level', 'desc')
         ->get();
 
-        $minimum = $m_events[sizeof($m_events)-1]->length;
+        # We set the $minimum to be the smallest length of the events in $m_events
+        $minimum = DB::table('events')
+        ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
+        ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+        ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
+        ->where('events.movable', '=', true)
+        ->min('events.length');
 
+        # The array that will contain the available periods (free times)
         $available_periods = [];
+
+        # We set the first free time to be from now until the start of the first immovable event
+        # We just check that the current time is after the end of the latest daily event
+        if($today->greaterThan($minimum_start_time)){
+            $minimum_start_time = $today;
+        }
 
         $free_time = [
             "start" => Carbon::now(),
@@ -223,15 +315,38 @@ class AlgorithmController extends Controller
 
         for ($i=0; $i < sizeof($i_events)-1; $i++){
 
+            # IEV = immovable event
             $iev_start_date = clone new Carbon($i_events[$i]->start_date);
-            $iev_end_date = clone $iev_start_date->addMinutes($i_events[$i]->length);
+            $iev_end_date = clone $iev_start_date->addMinutes($i_events[$i]->length); #Will serve as the end of the clump of immovable events
 
-            $niev_start_date = clone new Carbon($i_events[$i+1]->start_date);
+            # NIEV = next immovable event
+            $j = 1;
+            $niev_start_date = clone new Carbon($i_events[$i+$j]->start_date);
+            $niev_end_date = clone $niev_start_date->addMinutes($i_events[$i+$j]->length);
+
+            # We check that the next immovable event begins after the end of the current clump of immovable event
+            # if not, we will add the event to the clump ('if' to check who ends last) and check the next one ($j++)
+            while($iev_end_date->greaterThan($niev_start_date) && $i+$j < sizeof($i_events)-1){
+                # We check who ends first, the current immovable event or the next immovable event, we keep the one that ends last
+                # This sets when the clump of immovable events ends
+                if($niev_end_date->greaterThan($iev_end_date)){
+                    $iev_end_date = $niev_end_date;
+                }
+
+                $j++;
+                $niev_start_date = clone new Carbon($i_events[$i+$j]->start_date);
+                $niev_end_date = clone $niev_start_date->addMinutes($i_events[$i+$j]->length);
+            }
+
+            if($i+$j == sizeof($i_events)-1){
+                break;
+            }
 
             # We check if the length of the free time we're creating is not smaller than the minimum
             if($iev_end_date->diffInMinutes($niev_start_date) >= $minimum){
                 array_push($available_periods, ["start" => clone $iev_end_date,"length" => $iev_end_date->diffInMinutes($niev_start_date)]);
             }
+            $i = $i + $j - 1;
         }
 
         # If the time between the last event and the now + $N days is bigger than the minimum, we add it to the available periods
@@ -297,7 +412,7 @@ class AlgorithmController extends Controller
             'minimum' => $minimum,
             'original_available' => $available_copy,
             'final_available' => $available_periods,
-            'debug' => "yo"
+            'debug' => $minimum_start_time
         ], 200);
     }
 
