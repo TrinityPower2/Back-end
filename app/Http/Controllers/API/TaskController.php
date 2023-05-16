@@ -82,6 +82,8 @@ class TaskController extends Controller
                 'is_done'=> $is_done,
             ]);
 
+        $attached_task = null;
+
         # We check if the todolist has an id_buddy
         $list = To_do_list::where('id_todo', $request->id_todo)->first();
         if($list->id_buddy != null){
@@ -144,6 +146,8 @@ class TaskController extends Controller
                 'priority_level'=>$request->priority_level,
                 'is_done'=> $is_done,
             ]);
+
+        $attached_task = null;
 
         # We check if the todolist has an id_buddy
         if($list->id_buddy != null){
