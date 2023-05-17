@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Api\CalendarController;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+
+use App\Models\User;
 
 
 class MailController extends Controller
@@ -36,6 +39,19 @@ class MailController extends Controller
 
     public function reset_password(Request $request)
     {
+        $user = User::where('email', $request->email)->first();
+        if ($user == null) {
+            return response()->json([
+                'status' => false,
+                'message' => "User not found!",
+            ], 404);
+        }
+        $user->setVisible(['remember_token']);
+
+        $token = Str::random(60);
+        $user->remember_token = $token;
+        $user->save();
+
         $mailData = [
             'title' => 'Reset your password',
             'phrase1' => 'This is for testing email using smtp.',
@@ -43,7 +59,7 @@ class MailController extends Controller
 
         $userEmail = $request->input('email');
 
-        Mail::to($userEmail)->send(new ResetPasswordMail($mailData));
+        Mail::to($userEmail)->send(new ResetPasswordMail($mailData, $token));
 
         return response()->json(['message' => 'Email sent successfully'], 200);
     }

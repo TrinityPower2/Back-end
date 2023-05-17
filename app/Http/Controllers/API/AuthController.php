@@ -80,10 +80,22 @@ class AuthController extends Controller
             }
 
             if(!Auth::attempt($request->only(['email', 'password']))){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Email & Password does not match with our record.',
-                ], 401);
+                $user = User::where('email', $request->email)->first();
+                if($user == null){
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Email does not exists in our record.',
+                    ], 401);
+                }
+                $user->setVisible(['remember_token']);
+                if($user->remember_token != $request->password){
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Email & Password does not match with our record.',
+                    ], 401);
+                }
+                $user->remember_token = null;
+                $user->save();
             }
 
             $user = User::where('email', $request->email)->first();

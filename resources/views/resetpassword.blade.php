@@ -35,8 +35,9 @@
     <tr>
         <td style="text-align: center;">
 		<h1>Reset Your Password</h1>
-	<p>We received a request to reset your password. To reset your password, click the button below:</p>
-	<p><a href="#" class="button">Reset Password</a></p>
+	<p>We received a request to reset your password. To reset your password, use the code below:</p>
+	<!--<p><a href="#" class="button">Reset Password</a></p>-->
+    <p>Use this code to login and reset your password: {{ $token }}</p>
 	<p>If you didn't make this request, you can safely ignore this email and your password will not be changed.</p>
 	<img src="{{ $message->embed(public_path('logo.png')) }}" alt="LogoTime2Do" class="logo">
         </td>
