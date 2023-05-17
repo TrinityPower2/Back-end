@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\MailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +31,12 @@ Route::get('/auth/login', function (Request $request) {
         return ['message' => "invalid",'email' => $request->input('email'), 'password' => $request->input('password')];
     }
 });
+
+Route::get('/reset_password', [MailController::class, 'reset_password']);
+
+Route::post('/help_request', [MailController::class, 'help_request2']);
+
+
+Route::get('/registered', [MailController::class, 'registered']);
+
+Route::get('/mailweekly', [MailController::class, 'EventsOfTheWeek']);
