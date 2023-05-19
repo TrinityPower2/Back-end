@@ -179,6 +179,12 @@ class EventController extends Controller
 
         $event->save();
 
+        # If event color is null, replace by calendar color
+        if($event->color == null){
+            $calendar = Calendar::where('id_calendar', $event->id_calendar)->first();
+            $event->color = $calendar->color;
+        }
+
         return response()->json([
             'status' => true,
             'message' => "Event Edited successfully!",
