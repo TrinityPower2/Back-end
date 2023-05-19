@@ -114,6 +114,8 @@ class AlgorithmController extends Controller
         $sleeptime_start = Carbon::create("22:00:00")->setTimezone('Europe/Paris');
         $sleeptime_length = 600;
 
+        $prefered_period = "morning";
+
         # We navigate through the time preferences to find the sleeptime, lunchtime and dinnertime
 
         foreach($time_preferences as $time_preference){
@@ -128,6 +130,9 @@ class AlgorithmController extends Controller
             else if($time_preference->name_timepref=="sleeptime"){
                 $sleeptime_start = Carbon::create($time_preference->start_time);
                 $sleeptime_length = $time_preference->length;
+            }
+            else if($time_preference->name_timepref=="prefered_period"){
+                $prefered_period = $time_preference->start_time;
             }
         }
 
@@ -277,7 +282,7 @@ class AlgorithmController extends Controller
 
         # We turn the i_events into an array
         $i_events = $i_events->toArray();
-
+        
         usort($i_events, function($a, $b) {return strtotime($a->start_date) - strtotime($b->start_date);});
 
         # We fetch every event of the user that is movable
@@ -311,7 +316,9 @@ class AlgorithmController extends Controller
             "length" => Carbon::now()->diffInMinutes($i_events[0]->start_date)
         ];
 
-        array_push($available_periods, $free_time);
+    
+        if($free_time["length"] >= $minimum)
+            array_push($available_periods, $free_time);
 
         for ($i=0; $i < sizeof($i_events)-1; $i++){
 
@@ -356,9 +363,9 @@ class AlgorithmController extends Controller
             array_push($available_periods, ["start" => clone $last_ievent_end_date,"length" => $last_ievent_end_date->diffInMinutes(Carbon::now()->addDays($N))]);
         }
 
-        usort($available_periods, function($a, $b) {return $a['length'] - $b['length'];});
+        $available_periods = $this->contextAwareFreeperiodSort($available_periods, $prefered_period);
 
-        $available_copy = $available_periods;
+        $available_copy = array_merge(array(), $available_periods);
 
         $processed = [];
         $failed = [];
@@ -378,7 +385,7 @@ class AlgorithmController extends Controller
                         unset($available_periods[array_search($period, $available_periods)]);
                     }
                     else{
-                        usort($available_periods, function($a, $b) {return $a['length'] - $b['length'];});
+                        $available_periods = $this->contextAwareFreeperiodSort($available_periods, $prefered_period);
                     }
 
                     array_push($processed, $event);
@@ -414,6 +421,42 @@ class AlgorithmController extends Controller
             'final_available' => $available_periods,
             'debug' => $minimum_start_time
         ], 200);
+    }
+
+    # Functions to divide free periods into morning and afternoon free periods then resort them by length
+    public function contextAwareFreeperiodSort($available_periods, $prefered_period){
+
+        # We have to split the free times between the the ones that start on the morning
+        # and the ones that start on the afternoon
+
+        $morning_periods = [];
+        $afternoon_periods = [];
+
+        foreach($available_periods as &$period){
+            if($period["start"]->hour < 12){
+                array_push($morning_periods, $period);
+            }
+            else{
+                array_push($afternoon_periods, $period);
+            }
+        }
+
+        # We sort the available periods in morning and afternoon by length
+        usort($morning_periods, function($a, $b) {return $a['length'] - $b['length'];});
+        usort($afternoon_periods, function($a, $b) {return $a['length'] - $b['length'];});
+
+        # We then set the available periods to be the morning periods followed by the afternoon periods
+        # if $prefered_period is set to "morning"
+        # Otherwise we set the available periods to be the afternoon periods followed by the morning periods
+
+        if($prefered_period == "morning"){
+            $available_periods = array_merge($morning_periods, $afternoon_periods);
+        }
+        else{
+            $available_periods = array_merge($afternoon_periods, $morning_periods);
+        }
+
+        return $available_periods;
     }
 
     # User confirms the changes : every movable event of the user is set to not movable and the new events are saved
