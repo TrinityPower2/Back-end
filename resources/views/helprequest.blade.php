@@ -37,7 +37,11 @@
 				<p>User email : {{ $mailData['email'] }} </p>
 				<p>Summary of the issue : {{ $mailData['summary'] }} </p>
 				<p>Details (if given) : {{ $mailData['details'] }} </p>
-				<p>Page link : <a href="{{ $mailData['link'] }} ">{{ $mailData['link'] }}</a> </p>
+                @if($mailData['link']!=null)
+				    <p>Page link : <a href="{{ $mailData['link'] }} ">{{ $mailData['link'] }}</a> </p>
+                @else
+                    <p>No page link</p>
+                @endif
 				@if($path!=null)
 				  <p>Screenshot of the issue : <img src="{{ $message->embed(public_path('../storage/app/'.$path)) }}" alt="LogoTime2Do" class="logo"></p>
 				@else
