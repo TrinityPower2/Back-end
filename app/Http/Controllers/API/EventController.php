@@ -130,6 +130,14 @@ class EventController extends Controller
         ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
         ->get();
 
+        # For each event, we verify that color is not null, if so, we replace it by the color of the calendar
+        foreach ($events as $event) {
+            if($event->color == null){
+                $calendar = Calendar::where('id_calendar', $event->id_calendar)->first();
+                $event->color = $calendar->color;
+            }
+        }
+
         return response()->json([
             'status' => true,
             'message' => "Events fetched successfully!",
