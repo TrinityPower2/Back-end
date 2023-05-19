@@ -67,7 +67,7 @@ class EventController extends Controller
                 'priority_level' => $request->priority_level,
                 'id_calendar' => $request->id_calendar,
                 'to_repeat' => $request->to_repeat,
-                'color' => $calendar->color, //The color of the calendar
+                'color' => $request->color, //The color of the calendar
             ]);
 
         //Create the attached to do list
@@ -158,6 +158,8 @@ class EventController extends Controller
             $event->id_calendar = $request->id_calendar;
         if($request->to_repeat != null)
             $event->to_repeat = $request->to_repeat;
+        if($request->color != null)
+            $event->color = $request->color;
 
         $event->save();
 
