@@ -116,9 +116,17 @@ class EventController extends Controller
 
     public function userFetchAll(Request $request)
     {
+        /*
         $events = DB::table('events')
         ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
         ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+        ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
+        ->get();
+        */
+
+        $events = DB::table('calendar_belong_tos')
+        ->join('calendars', 'calendar_belong_tos.id_calendar', '=', 'calendars.id_calendar')
+        ->join('events', 'calendars.id_calendar', '=', 'events.id_calendar')
         ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
         ->get();
 
