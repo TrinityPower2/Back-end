@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use APP\Models\Event;
 use App\Models\Calendar;
 use App\Models\Calendar_belong_to;
+use App\Models\AttachedTodoList;
+use App\Models\AttachedTask;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -261,6 +263,22 @@ class CalendarController extends Controller
         }
 
         # We delete all the events of the calendar
+        $events = DB::table('events')->where('id_calendar', $id_calendar)->get();
+
+        #For each event, we delete the attached todolist, and the attached tasks
+        foreach($events as $event){
+            $todolist = AttachedTodolist::where('id_event', $event->id_event)->first();
+            if($todolist != null){
+                $tasks = AttachedTask::where('id_todo', $todolist->id_att_todo)->get();
+                foreach($tasks as $task){
+                    $task->delete();
+                }
+                $todolist->delete();
+            }
+        }
+
+        # We delete the events
+
         $events = DB::table('events')->where('id_calendar', $id_calendar)->delete();
 
         # We delete the entry in the calendar_belong_to table
