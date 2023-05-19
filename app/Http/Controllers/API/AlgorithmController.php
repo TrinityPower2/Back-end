@@ -93,7 +93,7 @@ class AlgorithmController extends Controller
     {
 
         // Number of days to planify
-        $N = 700;
+        $N = 7;
 
 
         # We fetch the user's time preferences
