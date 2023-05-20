@@ -138,6 +138,161 @@ class EventController extends Controller
             }
         }
 
+        # For each event, we check if is to be repeated or not:
+        # If to_repeat = 0, we do nothing
+        # If to_repeat = 1, to be repeated every year
+        # If to_repeat = 2, to be repeated every month
+        # If to_repeat = 3, to be repeated every week
+        # If to_repeat = 4, to be repeated every 3 day
+        # If to_repeat = 5, to be repeated every 2 day
+        # If to_repeat = 6, to be repeated every Log::useDailyFiles('path', days, 'level');
+
+        # If it is to be repeated, we add the event every year, month, week, day, 3 days, 2 days, or day
+        # from the day of the event to N years from now
+
+        $N = 5;
+        $created = [];
+
+        foreach ($events as $event) {
+            if($event->to_repeat != 0){
+                switch($event->to_repeat){
+                    case 1:
+                        # We add an event every year from the day of the event to N years from now
+                        $date = new Carbon($event->start_date);
+                        for($i = 0; $i < $N; $i++){
+                            $date = $date->addYear();
+                            array_push($created,
+                                (object) [
+                                    'id_event' => $event->id_event,
+                                    'id_calendar' => $event->id_calendar,
+                                    'name_event' => $event->name_event,
+                                    'description' => $event->description,
+                                    'start_date' => clone $date,
+                                    'length' => $event->length,
+                                    'priority_level' => $event->priority_level,
+                                    'movable' => false,
+                                    'to_repeat' => 0,
+                                    'color' => $event->color,
+                                ]
+                                );
+                        }
+                        break;
+                    case 2:
+                        # We add an event every month from the day of the event to N years from now
+                        $date = new Carbon($event->start_date);
+                        for($i = 0; $i < $N*12; $i++){
+                            $date = $date->addMonth();
+                            array_push($created,
+                                (object) [
+                                    'id_event' => $event->id_event,
+                                    'id_calendar' => $event->id_calendar,
+                                    'name_event' => $event->name_event,
+                                    'description' => $event->description,
+                                    'start_date' => clone $date,
+                                    'length' => $event->length,
+                                    'priority_level' => $event->priority_level,
+                                    'movable' => false,
+                                    'to_repeat' => 0,
+                                    'color' => $event->color,
+                                ]
+                                );
+                        }
+                        break;
+                    case 3:
+                        # We add an event every week from the day of the event to N years from now
+                        $date = new Carbon($event->start_date);
+                        for($i = 0; $i < $N*52; $i++){
+                            $date = $date->addWeek();
+                            array_push($created,
+                                (object) [
+                                    'id_event' => $event->id_event,
+                                    'id_calendar' => $event->id_calendar,
+                                    'name_event' => $event->name_event,
+                                    'description' => $event->description,
+                                    'start_date' => clone $date,
+                                    'length' => $event->length,
+                                    'priority_level' => $event->priority_level,
+                                    'movable' => false,
+                                    'to_repeat' => 0,
+                                    'color' => $event->color,
+                                ]
+                                );
+                        }
+                        break;
+                    case 4:
+                        # We add an event every 3 days from the day of the event to N years from now
+                        $date = new Carbon($event->start_date);
+                        for($i = 0; $i < $N*121; $i++){
+                            $date = $date->addDays(3);
+                            array_push($created,
+                                (object) [
+                                    'id_event' => $event->id_event,
+                                    'id_calendar' => $event->id_calendar,
+                                    'name_event' => $event->name_event,
+                                    'description' => $event->description,
+                                    'start_date' => clone $date,
+                                    'length' => $event->length,
+                                    'priority_level' => $event->priority_level,
+                                    'movable' => false,
+                                    'to_repeat' => 0,
+                                    'color' => $event->color,
+                                ]
+                                );
+                        }
+                        break;
+                    case 5:
+                        # We add an event every 2 days from the day of the event to N years from now
+                        $date = new Carbon($event->start_date);
+                        for($i = 0; $i < $N*182; $i++){
+                            $date = $date->addDays(2);
+                            array_push($created,
+                                (object) [
+                                    'id_event' => $event->id_event,
+                                    'id_calendar' => $event->id_calendar,
+                                    'name_event' => $event->name_event,
+                                    'description' => $event->description,
+                                    'start_date' => clone $date,
+                                    'length' => $event->length,
+                                    'priority_level' => $event->priority_level,
+                                    'movable' => false,
+                                    'to_repeat' => 0,
+                                    'color' => $event->color,
+                                ]
+                                );
+                        }
+                        break;
+                    case 6:
+                        # We add an event every day from the day of the event to N years from now
+                        $date = new Carbon($event->start_date);
+                        for($i = 0; $i < $N*365; $i++){
+                            $date = $date->addDay();
+                            array_push($created,
+                                (object) [
+                                    'id_event' => $event->id_event,
+                                    'id_calendar' => $event->id_calendar,
+                                    'name_event' => $event->name_event,
+                                    'description' => $event->description,
+                                    'start_date' => clone $date,
+                                    'length' => $event->length,
+                                    'priority_level' => $event->priority_level,
+                                    'movable' => false,
+                                    'to_repeat' => 0,
+                                    'color' => $event->color,
+                                ]
+                                );
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        }
+
+        $events = $events->toArray();
+        //We concatenate the two arrays
+        $events = array_merge($events, $created);
+
         return response()->json([
             'status' => true,
             'message' => "Events fetched successfully!",
