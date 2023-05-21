@@ -18,7 +18,7 @@ class TimePreferencesController extends Controller
      */
     public function userCreate(Request $request)
     {
-        if(!in_array($request->name_timepref,["sleeptime","lunchtime","dinnertime"])){
+        if(!in_array($request->name_timepref,["sleeptime","lunchtime","dinnertime","prefered_period"])){
             return response()->json([
                 'status' => false,
                 'message' => "This time preference is not valid !",
