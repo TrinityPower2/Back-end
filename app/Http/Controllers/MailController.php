@@ -64,13 +64,13 @@ class MailController extends Controller
         return response()->json(['message' => 'Email sent successfully'], 200);
     }
 
-    public function registered(Request $request)
+    public static function registered($name, $email)
     {
         $mailData = [
-            'name' => $request->name
+            'name' => $name
         ];
 
-        $userEmail = $request->email;
+        $userEmail = $email;
 
         Mail::to($userEmail)->send(new RegisteredMail($mailData));
 
@@ -93,7 +93,7 @@ class MailController extends Controller
             'link' => $request->link,
             'path' => $path
         ];
-        Mail::to('pauline.david1911@gmail.com')->send(new HelpRequestMail($mailData,$path));
+        Mail::to('antoinecraipeau@outlook.fr')->send(new HelpRequestMail($mailData,$path));
         if($path!== null){
             Storage ::delete($path); # pour supprimer le fichier une fois envoyé
         }

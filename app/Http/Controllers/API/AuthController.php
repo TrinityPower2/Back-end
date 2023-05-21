@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\MailController;
 
 class AuthController extends Controller
 {
@@ -40,6 +41,9 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password)
             ]);
+
+            # call function registered from MailController
+            $mail = MailController::registered($request->name, $request->email);
 
             return response()->json([
                 'status' => true,
