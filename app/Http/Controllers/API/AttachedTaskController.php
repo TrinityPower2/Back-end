@@ -52,6 +52,11 @@ class AttachedTaskController extends Controller
         //Get the attached list of this event
         $attachedlist = DB::table('attached_to_do_lists')->where('id_event', '=', $request->id_event)->first();
 
+        $done = false;
+        if($request->is_done != null){
+            $done = $request->is_done;
+        }
+
         $att_task = AttachedTask::create(
             [
                 'name_task'=>$request->name_task,
