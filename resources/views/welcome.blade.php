@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>TimeTwoDo API</title>
+        <title>Time To Do API</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -38,14 +38,14 @@
                             <img src="{{ URL::to('/assets/img/logo2wst.png') }}" style="height:30vh">
                         </div>
                         <div class="flex justify-center">
-                            <h1 class="mt-12 text-xl font-semibold text-gray-900 dark:text-white">Time 2 Do API</h1>
+                            <h1 class="mt-12 text-xl font-semibold text-gray-900 dark:text-white">Time To Do API</h1>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-6">
                     <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Laravel</h2>
-                    <p class="mt-2 text-gray-600 dark:text-gray-400">The Time 2 Do API has been made with the Laravel framework.</p>
+                    <p class="mt-2 text-gray-600 dark:text-gray-400">The Time To Do API has been made with the Laravel framework.</p>
                     <p class="mt-2 text-gray-600 dark:text-gray-400">You can check the following ressources to learn more about it : </p>
                 </div>
 
