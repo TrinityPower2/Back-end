@@ -425,6 +425,15 @@ class AlgorithmController extends Controller
             $temp_event->save();
         }
 
+        $processed = DB::table('calendar_belong_tos')
+        ->join('calendars', 'calendar_belong_tos.id_calendar', '=', 'calendars.id_calendar')
+        ->join('events', 'calendars.id_calendar', '=', 'events.id_calendar')
+        ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
+        ->where('events.movable', '=', true)
+        ->orderBy('events.priority_level', 'desc')
+        ->get();
+
+
         return response()->json([
             'status' => true,
             'message' => "Events sorted successfully!",
