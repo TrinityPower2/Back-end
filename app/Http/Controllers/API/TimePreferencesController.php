@@ -104,7 +104,7 @@ class TimePreferencesController extends Controller
                     'miscellaneous' => $request->miscellaneous
                 ]);
 
-            return reponse()->json([
+            return response()->json([
                 'status' => true,
                 'message' => "Preference Created successfully!",
                 'list' => $preference
