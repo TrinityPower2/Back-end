@@ -307,7 +307,6 @@ class AlgorithmController extends Controller
         # We create a rest event lasting all day for the next 2 sundays
 
         $next_sunday = Carbon::now()->startOfWeek()->addDays(6);
-        $next_next_sunday = Carbon::now()->startOfWeek()->addDays(13);
 
         $i_events = $i_events->concat([
 
@@ -317,18 +316,6 @@ class AlgorithmController extends Controller
                 'name' => 'Rest',
                 'description' => 'Rest',
                 'start_date' => clone $next_sunday,
-                'length' => 24*60,
-                'priority_level' => 0,
-                'movable' => false,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now()
-            ],
-            (object) [
-                'id_event' => -1,
-                'id_calendar' => -1,
-                'name' => 'Rest',
-                'description' => 'Rest',
-                'start_date' => clone $next_next_sunday,
                 'length' => 24*60,
                 'priority_level' => 0,
                 'movable' => false,
