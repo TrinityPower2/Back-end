@@ -330,7 +330,7 @@ class AlgorithmController extends Controller
             $j = 1;
             $niev_start_date = clone new Carbon($i_events[$i+$j]->start_date);
             $niev_end_date = Carbon::create($niev_start_date)->addMinutes($i_events[$i+$j]->length);
-            echo($niev_start_date);
+            #echo($niev_start_date);
 
             # We check that the next immovable event begins after the end of the current clump of immovable event
             # if not, we will add the event to the clump ('if' to check who ends last) and check the next one ($j++)
@@ -342,7 +342,7 @@ class AlgorithmController extends Controller
                 }
 
                 $j++;
-                echo(" - j incremented - ");
+                #echo(" - j incremented - ");
                 $niev_start_date = clone new Carbon($i_events[$i+$j]->start_date);
                 $niev_end_date = Carbon::create($niev_start_date)->addMinutes($i_events[$i+$j]->length);
             }
@@ -354,12 +354,12 @@ class AlgorithmController extends Controller
             # We check if the length of the free time we're creating is not smaller than the minimum
             if($iev_end_date->diffInMinutes($niev_start_date) >= $minimum){
                 array_push($available_periods, ["start" => clone $iev_end_date,"length" => $iev_end_date->diffInMinutes($niev_start_date)]);
-                echo " || pushed - ";
-                echo $iev_end_date;
-                echo " - ";
-                echo $niev_start_date;
-                echo " - ";
-                echo $iev_end_date->diffInMinutes($niev_start_date);
+                #echo " || pushed - ";
+                #echo $iev_end_date;
+                #echo " - ";
+                #echo $niev_start_date;
+                #echo " - ";
+                #echo $iev_end_date->diffInMinutes($niev_start_date);
             }
             $i = $i + $j - 1;
         }
