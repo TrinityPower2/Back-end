@@ -94,10 +94,21 @@ class TimePreferencesController extends Controller
     {
         $preference = Time_Preferences::where('name_timepref', '=', $name_timepref)->where('id_users', '=', auth('sanctum')->user()->id)->first();
         if($preference == null){
-            return response()->json([
-                'status' => false,
-                'message' => "This time preference have not been created !",
-            ], 404);
+            # If the preference doesn't exist, we create it with the given parameters
+            $preference = Time_Preferences::create(
+                [
+                    'name_timepref' => $name_timepref,
+                    'start_time' => new Carbon($request->start_time),
+                    'length' => $request->length,
+                    'id_users' => auth('sanctum')->user()->id,
+                    'miscellaneous' => $request->miscellaneous
+                ]);
+
+            return reponse()->json([
+                'status' => true,
+                'message' => "Preference Created successfully!",
+                'list' => $preference
+            ], 200);
         }
 
         # We doesn't change the name of the preference
