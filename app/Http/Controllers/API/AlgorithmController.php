@@ -131,6 +131,11 @@ class AlgorithmController extends Controller
                 $sleeptime_start = Carbon::create($time_preference->start_time)->setTimezone('Europe/Paris');
                 $sleeptime_length = $time_preference->length;
                 #If the sleeptime_start is after 23:00, we reset it to 23:00
+                /*
+                echo $sleeptime_start;
+                echo "////";
+                */
+                /*
                 if($sleeptime_start->hour>=23||$sleeptime_start->hour<6){
                     $sleeptime_start = Carbon::create("23:00:00")->setTimezone('Europe/Paris');
                 }
@@ -138,11 +143,22 @@ class AlgorithmController extends Controller
                 if($sleeptime_start->addMinutes($sleeptime_length)->hour<6||$sleeptime_start->addMinutes($sleeptime_length)->hour>=23){
                     $sleeptime_length = $sleeptime_length + diffInMinutes($sleeptime_start, Carbon::create("06:00:00")->setTimezone('Europe/Paris'));
                 }
+                */
             }
             else if($time_preference->name_timepref=="prefered_period"){
-                $prefered_period = $time_preference->start_time;
+                $prefered_period = $time_preference->miscellaneous;
             }
         }
+        /*
+        echo $lunchtime_start;
+        echo $lunchtime_length;
+        echo "-----";
+        echo $dinnertime_start;
+        echo $dinnertime_length;
+        echo "-----";
+        echo $sleeptime_start;
+        echo $sleeptime_length;
+        */
 
         # We introduce the sleeptime, lunchtime and dinnertime into the $i_events ifor the next $N days
 
