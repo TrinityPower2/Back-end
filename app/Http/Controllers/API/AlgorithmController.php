@@ -120,16 +120,24 @@ class AlgorithmController extends Controller
 
         foreach($time_preferences as $time_preference){
             if($time_preference->name_timepref=="lunchtime"){
-                $lunchtime_start = Carbon::create($time_preference->start_time);
+                $lunchtime_start = Carbon::create($time_preference->start_time)->setTimezone('Europe/Paris');
                 $lunchtime_length = $time_preference->length;
             }
             else if($time_preference->name_timepref=="dinnertime"){
-                $dinnertime_start = Carbon::create($time_preference->start_time);
+                $dinnertime_start = Carbon::create($time_preference->start_time)->setTimezone('Europe/Paris');
                 $dinnertime_length = $time_preference->length;
             }
             else if($time_preference->name_timepref=="sleeptime"){
-                $sleeptime_start = Carbon::create($time_preference->start_time);
+                $sleeptime_start = Carbon::create($time_preference->start_time)->setTimezone('Europe/Paris');
                 $sleeptime_length = $time_preference->length;
+                #If the sleeptime_start is after 23:00, we reset it to 23:00
+                if($sleeptime_start->hour>=23||$sleeptime_start->hour<6){
+                    $sleeptime_start = Carbon::create("23:00:00")->setTimezone('Europe/Paris');
+                }
+                #If the sleeptime_start + length is before 6:00, we reset it to 6:00
+                if($sleeptime_start->addMinutes($sleeptime_length)->hour<6||$sleeptime_start->addMinutes($sleeptime_length)->hour>=23){
+                    $sleeptime_length = $sleeptime_length + diffInMinutes($sleeptime_start, Carbon::create("06:00:00")->setTimezone('Europe/Paris'));
+                }
             }
             else if($time_preference->name_timepref=="prefered_period"){
                 $prefered_period = $time_preference->start_time;
