@@ -125,14 +125,15 @@ class AuthController extends Controller
             $user = User::where('email', $request->email)->first();
 
             if($user != null){
-                # send email to user
 
-                # CALLING MAIL FUNCTION
+                return MailController::reset_password($request);
 
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Email Sent Successfully',
-                ], 200);
+                /**
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Email Sent Successfully',
+                    ], 200);
+                */
             }
 
             return response()->json([

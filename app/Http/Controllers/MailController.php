@@ -37,7 +37,7 @@ class MailController extends Controller
         dd("Email is sent successfully.");
     }
 
-    public function reset_password(Request $request)
+    public static function reset_password(Request $request)
     {
         $user = User::where('email', $request->email)->first();
         if ($user == null) {
