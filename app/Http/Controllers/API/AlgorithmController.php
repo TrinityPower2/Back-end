@@ -282,22 +282,22 @@ class AlgorithmController extends Controller
 
         # We turn the i_events into an array
         $i_events = $i_events->toArray();
-        
+
         usort($i_events, function($a, $b) {return strtotime($a->start_date) - strtotime($b->start_date);});
 
         # We fetch every event of the user that is movable
-        $m_events = DB::table('events')
-        ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
-        ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+        $m_events = DB::table('calendar_belong_tos')
+        ->join('calendars', 'calendar_belong_tos.id_calendar', '=', 'calendars.id_calendar')
+        ->join('events', 'calendars.id_calendar', '=', 'events.id_calendar')
         ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
         ->where('events.movable', '=', true)
         ->orderBy('events.priority_level', 'desc')
         ->get();
 
         # We set the $minimum to be the smallest length of the events in $m_events
-        $minimum = DB::table('events')
-        ->join('calendars', 'events.id_calendar', '=', 'calendars.id_calendar')
-        ->join('calendar_belong_tos', 'calendars.id_calendar', '=', 'calendar_belong_tos.id_calendar')
+        $minimum = DB::table('calendar_belong_tos')
+        ->join('calendars', 'calendar_belong_tos.id_calendar', '=', 'calendars.id_calendar')
+        ->join('events', 'calendars.id_calendar', '=', 'events.id_calendar')
         ->where('calendar_belong_tos.id_users', '=', auth('sanctum')->user()->id)
         ->where('events.movable', '=', true)
         ->min('events.length');
@@ -316,7 +316,7 @@ class AlgorithmController extends Controller
             "length" => Carbon::now()->diffInMinutes($i_events[0]->start_date)
         ];
 
-    
+
         if($free_time["length"] >= $minimum)
             array_push($available_periods, $free_time);
 
@@ -324,12 +324,13 @@ class AlgorithmController extends Controller
 
             # IEV = immovable event
             $iev_start_date = clone new Carbon($i_events[$i]->start_date);
-            $iev_end_date = clone $iev_start_date->addMinutes($i_events[$i]->length); #Will serve as the end of the clump of immovable events
+            $iev_end_date = Carbon::create($iev_start_date)->addMinutes($i_events[$i]->length); #Will serve as the end of the clump of immovable events
 
             # NIEV = next immovable event
             $j = 1;
             $niev_start_date = clone new Carbon($i_events[$i+$j]->start_date);
-            $niev_end_date = clone $niev_start_date->addMinutes($i_events[$i+$j]->length);
+            $niev_end_date = Carbon::create($niev_start_date)->addMinutes($i_events[$i+$j]->length);
+            echo($niev_start_date);
 
             # We check that the next immovable event begins after the end of the current clump of immovable event
             # if not, we will add the event to the clump ('if' to check who ends last) and check the next one ($j++)
@@ -337,12 +338,13 @@ class AlgorithmController extends Controller
                 # We check who ends first, the current immovable event or the next immovable event, we keep the one that ends last
                 # This sets when the clump of immovable events ends
                 if($niev_end_date->greaterThan($iev_end_date)){
-                    $iev_end_date = $niev_end_date;
+                    $iev_end_date = clone $niev_end_date;
                 }
 
                 $j++;
+                echo(" - j incremented - ");
                 $niev_start_date = clone new Carbon($i_events[$i+$j]->start_date);
-                $niev_end_date = clone $niev_start_date->addMinutes($i_events[$i+$j]->length);
+                $niev_end_date = Carbon::create($niev_start_date)->addMinutes($i_events[$i+$j]->length);
             }
 
             if($i+$j == sizeof($i_events)-1){
@@ -352,6 +354,12 @@ class AlgorithmController extends Controller
             # We check if the length of the free time we're creating is not smaller than the minimum
             if($iev_end_date->diffInMinutes($niev_start_date) >= $minimum){
                 array_push($available_periods, ["start" => clone $iev_end_date,"length" => $iev_end_date->diffInMinutes($niev_start_date)]);
+                echo " || pushed - ";
+                echo $iev_end_date;
+                echo " - ";
+                echo $niev_start_date;
+                echo " - ";
+                echo $iev_end_date->diffInMinutes($niev_start_date);
             }
             $i = $i + $j - 1;
         }
@@ -419,7 +427,7 @@ class AlgorithmController extends Controller
             'minimum' => $minimum,
             'original_available' => $available_copy,
             'final_available' => $available_periods,
-            'debug' => $minimum_start_time
+            'debug' => $minimum
         ], 200);
     }
 
